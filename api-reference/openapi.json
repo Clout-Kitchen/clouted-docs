@@ -1,217 +1,1251 @@
 {
-  "openapi": "3.1.0",
-  "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
-    "version": "1.0.0"
-  },
-  "servers": [
-    {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ],
-  "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
-      "post": {
-        "description": "Information about a new plant added to the store",
-        "requestBody": {
-          "description": "Plant added to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
-      }
-    }
-  }
+	"info": { "title": "Rally Public API", "version": "1.0.0" },
+	"servers": [
+		{ "url": "http://app.clouted.com/api/v1" },
+		{ "url": "http://staging.app.clouted.com/api/v1" }
+	],
+	"security": [{ "BearerAuth": [] }],
+	"components": {
+		"securitySchemes": { "BearerAuth": { "type": "http", "scheme": "bearer" } }
+	},
+	"openapi": "3.1.1",
+	"paths": {
+		"/campaigns/{uuid}": {
+			"get": {
+				"operationId": "campaign.get",
+				"summary": "Get a campaign",
+				"description": "Returns a single campaign by UUID.",
+				"tags": ["Campaign"],
+				"parameters": [
+					{
+						"name": "uuid",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"uuid": { "type": "string" },
+										"name": { "type": "string" },
+										"publicName": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"status": {
+											"enum": [
+												"draft",
+												"active",
+												"paused",
+												"in_finance_review",
+												"completed"
+											],
+											"type": "string"
+										},
+										"platforms": {
+											"anyOf": [
+												{
+													"type": "array",
+													"items": {
+														"enum": ["youtube", "instagram", "tiktok"],
+														"type": "string"
+													}
+												},
+												{ "type": "null" }
+											]
+										},
+										"thumbnail": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"genre": {
+											"anyOf": [
+												{
+													"enum": [
+														"film",
+														"music",
+														"gaming",
+														"podcast",
+														"sports",
+														"livestream",
+														"influencer",
+														"logo",
+														"reposting"
+													],
+													"type": "string"
+												},
+												{ "type": "null" }
+											]
+										},
+										"visibility": {
+											"enum": ["public", "open", "private"],
+											"type": "string"
+										},
+										"startAt": {
+											"anyOf": [
+												{ "type": "string", "format": "date-time" },
+												{ "type": "null" }
+											]
+										},
+										"endAt": {
+											"anyOf": [
+												{ "type": "string", "format": "date-time" },
+												{ "type": "null" }
+											]
+										},
+										"createdAt": { "type": "string", "format": "date-time" }
+									},
+									"required": [
+										"uuid",
+										"name",
+										"publicName",
+										"status",
+										"platforms",
+										"thumbnail",
+										"genre",
+										"visibility",
+										"startAt",
+										"endAt",
+										"createdAt"
+									]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/campaigns": {
+			"get": {
+				"operationId": "campaign.list",
+				"summary": "List campaigns",
+				"description": "Returns a paginated list of campaigns. Supports partial matching for name, and filtering by status.",
+				"tags": ["Campaign"],
+				"parameters": [
+					{
+						"name": "pageIndex",
+						"in": "query",
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 9007199254740991,
+							"default": 0
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"schema": {
+							"type": "integer",
+							"minimum": -9007199254740991,
+							"maximum": 100,
+							"exclusiveMinimum": 0,
+							"default": 25
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "search",
+						"in": "query",
+						"schema": { "type": "string" },
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"schema": {
+							"type": "array",
+							"items": {
+								"enum": [
+									"draft",
+									"active",
+									"paused",
+									"in_finance_review",
+									"completed"
+								],
+								"type": "string"
+							}
+						},
+						"style": "form",
+						"explode": true,
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "sortBy",
+						"in": "query",
+						"schema": {
+							"enum": ["name", "status", "createdAt"],
+							"type": "string"
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "sortDesc",
+						"in": "query",
+						"schema": { "type": "string", "default": true },
+						"allowEmptyValue": true,
+						"allowReserved": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"uuid": { "type": "string" },
+													"name": { "type": "string" },
+													"publicName": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"status": {
+														"enum": [
+															"draft",
+															"active",
+															"paused",
+															"in_finance_review",
+															"completed"
+														],
+														"type": "string"
+													},
+													"platforms": {
+														"anyOf": [
+															{
+																"type": "array",
+																"items": {
+																	"enum": ["youtube", "instagram", "tiktok"],
+																	"type": "string"
+																}
+															},
+															{ "type": "null" }
+														]
+													},
+													"thumbnail": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"genre": {
+														"anyOf": [
+															{
+																"enum": [
+																	"film",
+																	"music",
+																	"gaming",
+																	"podcast",
+																	"sports",
+																	"livestream",
+																	"influencer",
+																	"logo",
+																	"reposting"
+																],
+																"type": "string"
+															},
+															{ "type": "null" }
+														]
+													},
+													"visibility": {
+														"enum": ["public", "open", "private"],
+														"type": "string"
+													},
+													"startAt": {
+														"anyOf": [
+															{ "type": "string", "format": "date-time" },
+															{ "type": "null" }
+														]
+													},
+													"endAt": {
+														"anyOf": [
+															{ "type": "string", "format": "date-time" },
+															{ "type": "null" }
+														]
+													},
+													"createdAt": {
+														"type": "string",
+														"format": "date-time"
+													}
+												},
+												"required": [
+													"uuid",
+													"name",
+													"publicName",
+													"status",
+													"platforms",
+													"thumbnail",
+													"genre",
+													"visibility",
+													"startAt",
+													"endAt",
+													"createdAt"
+												]
+											}
+										},
+										"total": { "type": "number" },
+										"pageIndex": { "type": "number" },
+										"pageSize": { "type": "number" }
+									},
+									"required": ["data", "total", "pageIndex", "pageSize"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/campaigns/{uuid}/clips": {
+			"get": {
+				"operationId": "campaign.getClips",
+				"summary": "List clip submissions",
+				"description": "Returns a paginated list of clip submissions for a campaign. Supports filtering by status and platform, with sorting by views, likes, comments, post date, or submit date. Optionally search by a specific field (clip_url, social_handle, creator_username, creator_discord_id) using partial matching.",
+				"tags": ["Campaign"],
+				"parameters": [
+					{
+						"name": "uuid",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid" }
+					},
+					{
+						"name": "pageIndex",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 9007199254740991,
+							"default": 0
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 100,
+							"default": 25
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "array",
+							"items": {
+								"enum": ["pending", "healthy", "suspicious", "flagged"],
+								"type": "string"
+							}
+						},
+						"style": "form",
+						"explode": true,
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "platform",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"enum": ["youtube", "tiktok", "instagram"],
+							"type": "string"
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "sortBy",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"enum": ["views", "likes", "comments", "postDate", "submitDate"],
+							"type": "string"
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "sortDesc",
+						"in": "query",
+						"required": false,
+						"schema": { "type": "string", "default": true },
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "searchField",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"enum": [
+								"clip_url",
+								"social_handle",
+								"creator_username",
+								"creator_discord_id"
+							],
+							"type": "string"
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "value",
+						"in": "query",
+						"required": false,
+						"schema": { "type": "string" },
+						"allowEmptyValue": true,
+						"allowReserved": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"uuid": { "type": "string" },
+													"url": { "type": "string" },
+													"title": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"platform": {
+														"enum": ["youtube", "tiktok", "instagram"],
+														"type": "string"
+													},
+													"status": {
+														"enum": [
+															"pending",
+															"healthy",
+															"suspicious",
+															"flagged"
+														],
+														"type": "string"
+													},
+													"datePosted": {
+														"anyOf": [
+															{ "type": "string", "format": "date-time" },
+															{ "type": "null" }
+														]
+													},
+													"thumbnailUrl": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"videoDurationMs": {
+														"anyOf": [{ "type": "number" }, { "type": "null" }]
+													},
+													"userHandle": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"createdAt": {
+														"type": "string",
+														"format": "date-time"
+													},
+													"stats": {
+														"type": "object",
+														"properties": {
+															"views": { "type": "number" },
+															"likes": { "type": "number" },
+															"comments": { "type": "number" },
+															"uniqueViewers": { "type": "number" }
+														},
+														"required": [
+															"views",
+															"likes",
+															"comments",
+															"uniqueViewers"
+														]
+													},
+													"clipper": {
+														"type": "object",
+														"properties": {
+															"uuid": { "type": "string" },
+															"username": { "type": "string" }
+														},
+														"required": ["uuid", "username"]
+													}
+												},
+												"required": [
+													"uuid",
+													"url",
+													"title",
+													"platform",
+													"status",
+													"datePosted",
+													"thumbnailUrl",
+													"videoDurationMs",
+													"userHandle",
+													"createdAt",
+													"stats",
+													"clipper"
+												]
+											}
+										},
+										"total": { "type": "number" },
+										"pageIndex": { "type": "number" },
+										"pageSize": { "type": "number" }
+									},
+									"required": ["data", "total", "pageIndex", "pageSize"]
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"operationId": "campaign.importUrls",
+				"summary": "Import clip URLs",
+				"description": "Imports one or more clip URLs into a campaign. Fails if a URL is a duplicate submission or from an unsupported platform.",
+				"tags": ["Campaign"],
+				"parameters": [
+					{
+						"name": "uuid",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid" }
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"urls": {
+										"type": "array",
+										"minItems": 1,
+										"maxItems": 100,
+										"items": { "type": "string", "format": "uri" }
+									},
+									"status": {
+										"enum": ["pending", "healthy", "suspicious", "flagged"],
+										"type": "string"
+									}
+								},
+								"required": ["urls", "status"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"imported": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"uuid": { "type": "string" },
+													"url": { "type": "string" }
+												},
+												"required": ["uuid", "url"]
+											}
+										}
+									},
+									"required": ["imported"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/creators/{uuid}": {
+			"get": {
+				"operationId": "creator.get",
+				"summary": "Get creator info",
+				"description": "Returns a creator info by UUID.",
+				"tags": ["Creator"],
+				"parameters": [
+					{
+						"name": "uuid",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"uuid": { "type": "string" },
+										"discordId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"username": { "type": "string" },
+										"discordAvatar": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"name": { "type": "string" },
+										"userImage": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"email": { "type": "string" },
+										"emailVerified": { "type": "boolean" },
+										"role": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"banned": {
+											"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+										},
+										"banReason": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"banExpires": {
+											"anyOf": [
+												{ "type": "string", "format": "date-time" },
+												{ "type": "null" }
+											]
+										},
+										"joinedAt": { "type": "string", "format": "date-time" }
+									},
+									"required": [
+										"uuid",
+										"discordId",
+										"username",
+										"discordAvatar",
+										"name",
+										"userImage",
+										"email",
+										"emailVerified",
+										"role",
+										"banned",
+										"banReason",
+										"banExpires",
+										"joinedAt"
+									]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/creators": {
+			"get": {
+				"operationId": "creator.list",
+				"summary": "List creators",
+				"description": "Returns a paginated list of creators. Supports sorting by username, name, email, join date, or role. Optionally search by a specific field (username, name, email, discord_id) using partial matching.",
+				"tags": ["Creator"],
+				"parameters": [
+					{
+						"name": "pageIndex",
+						"in": "query",
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 9007199254740991,
+							"default": 0
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 100,
+							"default": 25
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "sortBy",
+						"in": "query",
+						"schema": {
+							"enum": ["username", "name", "email", "joinedAt", "role"],
+							"type": "string"
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "sortDesc",
+						"in": "query",
+						"schema": { "type": "string", "default": true },
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "searchField",
+						"in": "query",
+						"schema": {
+							"enum": ["username", "name", "email", "discord_id"],
+							"type": "string"
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "value",
+						"in": "query",
+						"schema": { "type": "string" },
+						"allowEmptyValue": true,
+						"allowReserved": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"uuid": { "type": "string" },
+													"discordId": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"username": { "type": "string" },
+													"discordAvatar": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"name": { "type": "string" },
+													"userImage": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"email": { "type": "string" },
+													"emailVerified": { "type": "boolean" },
+													"role": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"banned": {
+														"anyOf": [{ "type": "boolean" }, { "type": "null" }]
+													},
+													"banReason": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"banExpires": {
+														"anyOf": [
+															{ "type": "string", "format": "date-time" },
+															{ "type": "null" }
+														]
+													},
+													"joinedAt": {
+														"type": "string",
+														"format": "date-time"
+													}
+												},
+												"required": [
+													"uuid",
+													"discordId",
+													"username",
+													"discordAvatar",
+													"name",
+													"userImage",
+													"email",
+													"emailVerified",
+													"role",
+													"banned",
+													"banReason",
+													"banExpires",
+													"joinedAt"
+												]
+											}
+										},
+										"total": { "type": "number" },
+										"pageIndex": { "type": "number" },
+										"pageSize": { "type": "number" }
+									},
+									"required": ["data", "total", "pageIndex", "pageSize"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/creators/{uuid}/stats": {
+			"get": {
+				"operationId": "creator.getCreatorStats",
+				"summary": "Get stats for a creator",
+				"description": "Returns performance statistics for a single creator by UUID",
+				"tags": ["Creator"],
+				"parameters": [
+					{
+						"name": "uuid",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"uuid": { "type": "string" },
+										"username": { "type": "string" },
+										"discordAvatar": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"discordId": {
+											"anyOf": [{ "type": "string" }, { "type": "null" }]
+										},
+										"totalClips": { "type": "number" },
+										"approvedClips": { "type": "number" },
+										"approvalRate": {
+											"anyOf": [{ "type": "number" }, { "type": "null" }]
+										},
+										"totalViews": { "type": "number" },
+										"approvedViews": { "type": "number" },
+										"totalEarnings": { "type": "number" }
+									},
+									"required": [
+										"uuid",
+										"username",
+										"discordAvatar",
+										"discordId",
+										"totalClips",
+										"approvedClips",
+										"approvalRate",
+										"totalViews",
+										"approvedViews",
+										"totalEarnings"
+									]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/creators/-/stats": {
+			"get": {
+				"operationId": "creator.listCreatorStats",
+				"summary": "List creator stats",
+				"description": "Returns a paginated list of creator performance statistics. Supports sorting by username, total clips, approved clips, approval rate, total views, approved views, or total earnings.",
+				"tags": ["Creator"],
+				"parameters": [
+					{
+						"name": "pageIndex",
+						"in": "query",
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 9007199254740991,
+							"default": 0
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 100,
+							"default": 25
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "sortBy",
+						"in": "query",
+						"schema": {
+							"enum": [
+								"username",
+								"totalClips",
+								"approvedClips",
+								"approvalRate",
+								"totalViews",
+								"approvedViews",
+								"totalEarnings"
+							],
+							"type": "string"
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "sortDesc",
+						"in": "query",
+						"schema": { "type": "string", "default": true },
+						"allowEmptyValue": true,
+						"allowReserved": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"uuid": { "type": "string" },
+													"username": { "type": "string" },
+													"discordAvatar": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"discordId": {
+														"anyOf": [{ "type": "string" }, { "type": "null" }]
+													},
+													"totalClips": { "type": "number" },
+													"approvedClips": { "type": "number" },
+													"approvalRate": {
+														"anyOf": [{ "type": "number" }, { "type": "null" }]
+													},
+													"totalViews": { "type": "number" },
+													"approvedViews": { "type": "number" },
+													"totalEarnings": { "type": "number" }
+												},
+												"required": [
+													"uuid",
+													"username",
+													"discordAvatar",
+													"discordId",
+													"totalClips",
+													"approvedClips",
+													"approvalRate",
+													"totalViews",
+													"approvedViews",
+													"totalEarnings"
+												]
+											}
+										},
+										"total": { "type": "number" },
+										"pageIndex": { "type": "number" },
+										"pageSize": { "type": "number" }
+									},
+									"required": ["data", "total", "pageIndex", "pageSize"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/tracking-campaigns/{uuid}": {
+			"get": {
+				"operationId": "trackingCampaign.get",
+				"summary": "Get a tracking campaign",
+				"description": "Returns a single tracking campaign by UUID.",
+				"tags": ["Tracking Campaign"],
+				"parameters": [
+					{
+						"name": "uuid",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid" }
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"uuid": { "type": "string" },
+										"name": { "type": "string" },
+										"status": {
+											"enum": ["draft", "active", "paused", "completed"],
+											"type": "string"
+										},
+										"platforms": {
+											"anyOf": [
+												{
+													"type": "array",
+													"items": {
+														"enum": ["youtube", "instagram", "tiktok"],
+														"type": "string"
+													}
+												},
+												{ "type": "null" }
+											]
+										},
+										"thumbnail": { "type": "string" },
+										"visibility": {
+											"enum": ["public", "open", "private"],
+											"type": "string"
+										},
+										"contentBrief": { "type": "string" },
+										"contentSrc": {
+											"anyOf": [
+												{ "type": "array", "items": { "type": "string" } },
+												{ "type": "null" }
+											]
+										},
+										"createdAt": { "type": "string", "format": "date-time" }
+									},
+									"required": [
+										"uuid",
+										"name",
+										"status",
+										"platforms",
+										"thumbnail",
+										"visibility",
+										"contentBrief",
+										"contentSrc",
+										"createdAt"
+									]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/tracking-campaigns": {
+			"get": {
+				"operationId": "trackingCampaign.list",
+				"summary": "List tracking campaigns",
+				"description": "Returns a paginated list of tracking campaigns. Supports filtering by status and sorting by name, status, creation date, or visibility.",
+				"tags": ["Tracking Campaign"],
+				"parameters": [
+					{
+						"name": "pageIndex",
+						"in": "query",
+						"schema": {
+							"type": "integer",
+							"minimum": 0,
+							"maximum": 9007199254740991,
+							"default": 0
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "pageSize",
+						"in": "query",
+						"schema": {
+							"type": "integer",
+							"minimum": 1,
+							"maximum": 100,
+							"default": 25
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "status",
+						"in": "query",
+						"schema": {
+							"type": "array",
+							"items": {
+								"enum": ["draft", "active", "paused", "completed"],
+								"type": "string"
+							}
+						},
+						"style": "form",
+						"explode": true,
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "sortBy",
+						"in": "query",
+						"schema": {
+							"enum": ["name", "status", "createdAt", "visibility"],
+							"type": "string"
+						},
+						"allowEmptyValue": true,
+						"allowReserved": true
+					},
+					{
+						"name": "sortDesc",
+						"in": "query",
+						"schema": { "type": "string", "default": true },
+						"allowEmptyValue": true,
+						"allowReserved": true
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"data": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"uuid": { "type": "string" },
+													"name": { "type": "string" },
+													"status": {
+														"enum": ["draft", "active", "paused", "completed"],
+														"type": "string"
+													},
+													"platforms": {
+														"anyOf": [
+															{
+																"type": "array",
+																"items": {
+																	"enum": ["youtube", "instagram", "tiktok"],
+																	"type": "string"
+																}
+															},
+															{ "type": "null" }
+														]
+													},
+													"thumbnail": { "type": "string" },
+													"visibility": {
+														"enum": ["public", "open", "private"],
+														"type": "string"
+													},
+													"contentBrief": { "type": "string" },
+													"contentSrc": {
+														"anyOf": [
+															{
+																"type": "array",
+																"items": { "type": "string" }
+															},
+															{ "type": "null" }
+														]
+													},
+													"createdAt": {
+														"type": "string",
+														"format": "date-time"
+													}
+												},
+												"required": [
+													"uuid",
+													"name",
+													"status",
+													"platforms",
+													"thumbnail",
+													"visibility",
+													"contentBrief",
+													"contentSrc",
+													"createdAt"
+												]
+											}
+										},
+										"total": { "type": "number" },
+										"pageIndex": { "type": "number" },
+										"pageSize": { "type": "number" }
+									},
+									"required": ["data", "total", "pageIndex", "pageSize"]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/tracking-campaigns/{uuid}/content": {
+			"post": {
+				"operationId": "trackingCampaign.importUrls",
+				"summary": "Import content URLs",
+				"description": "Imports one or more content URLs into a tracking campaign. Fails if a URL is a duplicate submission or from an unsupported platform.",
+				"tags": ["Tracking Campaign"],
+				"parameters": [
+					{
+						"name": "uuid",
+						"in": "path",
+						"required": true,
+						"schema": { "type": "string", "format": "uuid" }
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"urls": {
+										"type": "array",
+										"minItems": 1,
+										"maxItems": 100,
+										"items": { "type": "string", "format": "uri" }
+									},
+									"status": {
+										"enum": ["pending", "approved", "rejected"],
+										"type": "string"
+									}
+								},
+								"required": ["urls", "status"]
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"imported": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"uuid": { "type": "string" },
+													"url": { "type": "string" }
+												},
+												"required": ["uuid", "url"]
+											}
+										}
+									},
+									"required": ["imported"]
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }
