@@ -1843,9 +1843,6 @@
   "servers": [
     {
       "url": "https://app.clouted.com/api/v1"
-    },
-    {
-      "url": "https://staging.app.clouted.com/api/v1"
     }
   ]
 }
