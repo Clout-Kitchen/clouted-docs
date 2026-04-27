@@ -1,1848 +1,1687 @@
 {
-  "components": {
-    "securitySchemes": {
-      "BearerAuth": {
-        "scheme": "bearer",
-        "type": "http"
-      }
-    }
-  },
-  "info": {
-    "title": "Clouted Public API",
-    "version": "1.0.0"
-  },
-  "openapi": "3.1.1",
-  "paths": {
-    "/campaigns": {
-      "get": {
-        "description": "Returns a paginated list of campaigns. Supports partial matching for name, and filtering by status.",
-        "operationId": "campaign.list",
-        "parameters": [
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "pageIndex",
-            "schema": {
-              "default": 0,
-              "maximum": 9007199254740991,
-              "minimum": 0,
-              "type": "integer"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "pageSize",
-            "schema": {
-              "default": 25,
-              "exclusiveMinimum": 0,
-              "maximum": 100,
-              "minimum": -9007199254740991,
-              "type": "integer"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "search",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "explode": true,
-            "in": "query",
-            "name": "status",
-            "schema": {
-              "items": {
-                "enum": [
-                  "draft",
-                  "active",
-                  "paused",
-                  "in_finance_review",
-                  "completed"
-                ],
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "style": "form"
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "sortBy",
-            "schema": {
-              "enum": [
-                "name",
-                "status",
-                "createdAt"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "sortDesc",
-            "schema": {
-              "default": true,
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "data": {
-                      "items": {
-                        "properties": {
-                          "createdAt": {
-                            "format": "date-time",
-                            "type": "string"
-                          },
-                          "endAt": {
-                            "anyOf": [
-                              {
-                                "format": "date-time",
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "genre": {
-                            "anyOf": [
-                              {
-                                "enum": [
-                                  "film",
-                                  "music",
-                                  "gaming",
-                                  "podcast",
-                                  "sports",
-                                  "livestream",
-                                  "influencer",
-                                  "logo",
-                                  "reposting"
-                                ],
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "platforms": {
-                            "anyOf": [
-                              {
-                                "items": {
-                                  "enum": [
-                                    "youtube",
-                                    "instagram",
-                                    "tiktok"
-                                  ],
-                                  "type": "string"
-                                },
-                                "type": "array"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "publicName": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "startAt": {
-                            "anyOf": [
-                              {
-                                "format": "date-time",
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "status": {
-                            "enum": [
-                              "draft",
-                              "active",
-                              "paused",
-                              "in_finance_review",
-                              "completed"
-                            ],
-                            "type": "string"
-                          },
-                          "thumbnail": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "uuid": {
-                            "type": "string"
-                          },
-                          "visibility": {
-                            "enum": [
-                              "public",
-                              "open",
-                              "private"
-                            ],
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "uuid",
-                          "name",
-                          "publicName",
-                          "status",
-                          "platforms",
-                          "thumbnail",
-                          "genre",
-                          "visibility",
-                          "startAt",
-                          "endAt",
-                          "createdAt"
-                        ],
-                        "type": "object"
-                      },
-                      "type": "array"
-                    },
-                    "pageIndex": {
-                      "type": "number"
-                    },
-                    "pageSize": {
-                      "type": "number"
-                    },
-                    "total": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "data",
-                    "total",
-                    "pageIndex",
-                    "pageSize"
-                  ],
-                  "type": "object"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "summary": "List campaigns",
-        "tags": [
-          "Campaign"
-        ]
-      }
-    },
-    "/campaigns/{uuid}": {
-      "get": {
-        "description": "Returns a single campaign by UUID.",
-        "operationId": "campaign.get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "uuid",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "createdAt": {
-                      "format": "date-time",
-                      "type": "string"
-                    },
-                    "endAt": {
-                      "anyOf": [
-                        {
-                          "format": "date-time",
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "genre": {
-                      "anyOf": [
-                        {
-                          "enum": [
-                            "film",
-                            "music",
-                            "gaming",
-                            "podcast",
-                            "sports",
-                            "livestream",
-                            "influencer",
-                            "logo",
-                            "reposting"
-                          ],
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "platforms": {
-                      "anyOf": [
-                        {
-                          "items": {
-                            "enum": [
-                              "youtube",
-                              "instagram",
-                              "tiktok"
-                            ],
-                            "type": "string"
-                          },
-                          "type": "array"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "publicName": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "startAt": {
-                      "anyOf": [
-                        {
-                          "format": "date-time",
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "status": {
-                      "enum": [
-                        "draft",
-                        "active",
-                        "paused",
-                        "in_finance_review",
-                        "completed"
-                      ],
-                      "type": "string"
-                    },
-                    "thumbnail": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "uuid": {
-                      "type": "string"
-                    },
-                    "visibility": {
-                      "enum": [
-                        "public",
-                        "open",
-                        "private"
-                      ],
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "uuid",
-                    "name",
-                    "publicName",
-                    "status",
-                    "platforms",
-                    "thumbnail",
-                    "genre",
-                    "visibility",
-                    "startAt",
-                    "endAt",
-                    "createdAt"
-                  ],
-                  "type": "object"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "summary": "Get a campaign",
-        "tags": [
-          "Campaign"
-        ]
-      }
-    },
-    "/campaigns/{uuid}/clips": {
-      "get": {
-        "description": "Returns a paginated list of clip submissions for a campaign. Supports filtering by status and platform, with sorting by views, likes, comments, post date, or submit date. Optionally search by a specific field (clip_url, social_handle, creator_username, creator_discord_id) using partial matching.",
-        "operationId": "campaign.getClips",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "uuid",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "pageIndex",
-            "required": false,
-            "schema": {
-              "default": 0,
-              "maximum": 9007199254740991,
-              "minimum": 0,
-              "type": "integer"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "pageSize",
-            "required": false,
-            "schema": {
-              "default": 25,
-              "maximum": 100,
-              "minimum": 1,
-              "type": "integer"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "explode": true,
-            "in": "query",
-            "name": "status",
-            "required": false,
-            "schema": {
-              "items": {
-                "enum": [
-                  "pending",
-                  "healthy",
-                  "suspicious",
-                  "flagged"
-                ],
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "style": "form"
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "platform",
-            "required": false,
-            "schema": {
-              "enum": [
-                "youtube",
-                "tiktok",
-                "instagram"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "sortBy",
-            "required": false,
-            "schema": {
-              "enum": [
-                "views",
-                "likes",
-                "comments",
-                "postDate",
-                "submitDate"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "sortDesc",
-            "required": false,
-            "schema": {
-              "default": true,
-              "type": "string"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "searchField",
-            "required": false,
-            "schema": {
-              "enum": [
-                "clip_url",
-                "social_handle",
-                "creator_username",
-                "creator_discord_id"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "value",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "data": {
-                      "items": {
-                        "properties": {
-                          "clipper": {
-                            "properties": {
-                              "username": {
-                                "type": "string"
-                              },
-                              "uuid": {
-                                "type": "string"
-                              }
-                            },
-                            "required": [
-                              "uuid",
-                              "username"
-                            ],
-                            "type": "object"
-                          },
-                          "createdAt": {
-                            "format": "date-time",
-                            "type": "string"
-                          },
-                          "datePosted": {
-                            "anyOf": [
-                              {
-                                "format": "date-time",
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "platform": {
-                            "enum": [
-                              "youtube",
-                              "tiktok",
-                              "instagram"
-                            ],
-                            "type": "string"
-                          },
-                          "stats": {
-                            "properties": {
-                              "comments": {
-                                "type": "number"
-                              },
-                              "likes": {
-                                "type": "number"
-                              },
-                              "uniqueViewers": {
-                                "type": "number"
-                              },
-                              "views": {
-                                "type": "number"
-                              }
-                            },
-                            "required": [
-                              "views",
-                              "likes",
-                              "comments",
-                              "uniqueViewers"
-                            ],
-                            "type": "object"
-                          },
-                          "status": {
-                            "enum": [
-                              "pending",
-                              "healthy",
-                              "suspicious",
-                              "flagged"
-                            ],
-                            "type": "string"
-                          },
-                          "thumbnailUrl": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "title": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "url": {
-                            "type": "string"
-                          },
-                          "userHandle": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "uuid": {
-                            "type": "string"
-                          },
-                          "videoDurationMs": {
-                            "anyOf": [
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          }
-                        },
-                        "required": [
-                          "uuid",
-                          "url",
-                          "title",
-                          "platform",
-                          "status",
-                          "datePosted",
-                          "thumbnailUrl",
-                          "videoDurationMs",
-                          "userHandle",
-                          "createdAt",
-                          "stats",
-                          "clipper"
-                        ],
-                        "type": "object"
-                      },
-                      "type": "array"
-                    },
-                    "pageIndex": {
-                      "type": "number"
-                    },
-                    "pageSize": {
-                      "type": "number"
-                    },
-                    "total": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "data",
-                    "total",
-                    "pageIndex",
-                    "pageSize"
-                  ],
-                  "type": "object"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "summary": "List clip submissions",
-        "tags": [
-          "Campaign"
-        ]
-      },
-      "post": {
-        "description": "Imports one or more clip URLs into a campaign. Fails if a URL is a duplicate submission or from an unsupported platform.",
-        "operationId": "campaign.importUrls",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "uuid",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "status": {
-                    "enum": [
-                      "pending",
-                      "healthy",
-                      "suspicious",
-                      "flagged"
-                    ],
-                    "type": "string"
-                  },
-                  "urls": {
-                    "items": {
-                      "format": "uri",
-                      "type": "string"
-                    },
-                    "maxItems": 100,
-                    "minItems": 1,
-                    "type": "array"
-                  }
-                },
-                "required": [
-                  "urls",
-                  "status"
-                ],
-                "type": "object"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "imported": {
-                      "items": {
-                        "properties": {
-                          "url": {
-                            "type": "string"
-                          },
-                          "uuid": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "uuid",
-                          "url"
-                        ],
-                        "type": "object"
-                      },
-                      "type": "array"
-                    }
-                  },
-                  "required": [
-                    "imported"
-                  ],
-                  "type": "object"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "summary": "Import clip URLs",
-        "tags": [
-          "Campaign"
-        ]
-      }
-    },
-    "/creators": {
-      "get": {
-        "description": "Returns a paginated list of creators. Supports sorting by username, name, email, join date, or role. Optionally search by a specific field (username, name, email, discord_id) using partial matching.",
-        "operationId": "creator.list",
-        "parameters": [
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "pageIndex",
-            "schema": {
-              "default": 0,
-              "maximum": 9007199254740991,
-              "minimum": 0,
-              "type": "integer"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "pageSize",
-            "schema": {
-              "default": 25,
-              "maximum": 100,
-              "minimum": 1,
-              "type": "integer"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "sortBy",
-            "schema": {
-              "enum": [
-                "username",
-                "name",
-                "email",
-                "joinedAt",
-                "role"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "sortDesc",
-            "schema": {
-              "default": true,
-              "type": "string"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "searchField",
-            "schema": {
-              "enum": [
-                "username",
-                "name",
-                "email",
-                "discord_id"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "value",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "data": {
-                      "items": {
-                        "properties": {
-                          "banExpires": {
-                            "anyOf": [
-                              {
-                                "format": "date-time",
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "banReason": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "banned": {
-                            "anyOf": [
-                              {
-                                "type": "boolean"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "discordAvatar": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "discordId": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "email": {
-                            "type": "string"
-                          },
-                          "emailVerified": {
-                            "type": "boolean"
-                          },
-                          "joinedAt": {
-                            "format": "date-time",
-                            "type": "string"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "role": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "userImage": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "username": {
-                            "type": "string"
-                          },
-                          "uuid": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "uuid",
-                          "discordId",
-                          "username",
-                          "discordAvatar",
-                          "name",
-                          "userImage",
-                          "email",
-                          "emailVerified",
-                          "role",
-                          "banned",
-                          "banReason",
-                          "banExpires",
-                          "joinedAt"
-                        ],
-                        "type": "object"
-                      },
-                      "type": "array"
-                    },
-                    "pageIndex": {
-                      "type": "number"
-                    },
-                    "pageSize": {
-                      "type": "number"
-                    },
-                    "total": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "data",
-                    "total",
-                    "pageIndex",
-                    "pageSize"
-                  ],
-                  "type": "object"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "summary": "List creators",
-        "tags": [
-          "Creator"
-        ]
-      }
-    },
-    "/creators/-/stats": {
-      "get": {
-        "description": "Returns a paginated list of creator performance statistics. Supports sorting by username, total clips, approved clips, approval rate, total views, approved views, or total earnings.",
-        "operationId": "creator.listCreatorStats",
-        "parameters": [
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "pageIndex",
-            "schema": {
-              "default": 0,
-              "maximum": 9007199254740991,
-              "minimum": 0,
-              "type": "integer"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "pageSize",
-            "schema": {
-              "default": 25,
-              "maximum": 100,
-              "minimum": 1,
-              "type": "integer"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "sortBy",
-            "schema": {
-              "enum": [
-                "username",
-                "totalClips",
-                "approvedClips",
-                "approvalRate",
-                "totalViews",
-                "approvedViews",
-                "totalEarnings"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "sortDesc",
-            "schema": {
-              "default": true,
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "data": {
-                      "items": {
-                        "properties": {
-                          "approvalRate": {
-                            "anyOf": [
-                              {
-                                "type": "number"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "approvedClips": {
-                            "type": "number"
-                          },
-                          "approvedViews": {
-                            "type": "number"
-                          },
-                          "discordAvatar": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "discordId": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "totalClips": {
-                            "type": "number"
-                          },
-                          "totalEarnings": {
-                            "type": "number"
-                          },
-                          "totalViews": {
-                            "type": "number"
-                          },
-                          "username": {
-                            "type": "string"
-                          },
-                          "uuid": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "uuid",
-                          "username",
-                          "discordAvatar",
-                          "discordId",
-                          "totalClips",
-                          "approvedClips",
-                          "approvalRate",
-                          "totalViews",
-                          "approvedViews",
-                          "totalEarnings"
-                        ],
-                        "type": "object"
-                      },
-                      "type": "array"
-                    },
-                    "pageIndex": {
-                      "type": "number"
-                    },
-                    "pageSize": {
-                      "type": "number"
-                    },
-                    "total": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "data",
-                    "total",
-                    "pageIndex",
-                    "pageSize"
-                  ],
-                  "type": "object"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "summary": "List creator stats",
-        "tags": [
-          "Creator"
-        ]
-      }
-    },
-    "/creators/{uuid}": {
-      "get": {
-        "description": "Returns a single creator by UUID.",
-        "operationId": "creator.get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "uuid",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "banExpires": {
-                      "anyOf": [
-                        {
-                          "format": "date-time",
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "banReason": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "banned": {
-                      "anyOf": [
-                        {
-                          "type": "boolean"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "discordAvatar": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "discordId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "email": {
-                      "type": "string"
-                    },
-                    "emailVerified": {
-                      "type": "boolean"
-                    },
-                    "joinedAt": {
-                      "format": "date-time",
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "role": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "userImage": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "username": {
-                      "type": "string"
-                    },
-                    "uuid": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "uuid",
-                    "discordId",
-                    "username",
-                    "discordAvatar",
-                    "name",
-                    "userImage",
-                    "email",
-                    "emailVerified",
-                    "role",
-                    "banned",
-                    "banReason",
-                    "banExpires",
-                    "joinedAt"
-                  ],
-                  "type": "object"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "summary": "Get a creator",
-        "tags": [
-          "Creator"
-        ]
-      }
-    },
-    "/creators/{uuid}/stats": {
-      "get": {
-        "description": "Returns performance statistics for a single creator by UUID",
-        "operationId": "creator.getCreatorStats",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "uuid",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "approvalRate": {
-                      "anyOf": [
-                        {
-                          "type": "number"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "approvedClips": {
-                      "type": "number"
-                    },
-                    "approvedViews": {
-                      "type": "number"
-                    },
-                    "discordAvatar": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "discordId": {
-                      "anyOf": [
-                        {
-                          "type": "string"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "totalClips": {
-                      "type": "number"
-                    },
-                    "totalEarnings": {
-                      "type": "number"
-                    },
-                    "totalViews": {
-                      "type": "number"
-                    },
-                    "username": {
-                      "type": "string"
-                    },
-                    "uuid": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "uuid",
-                    "username",
-                    "discordAvatar",
-                    "discordId",
-                    "totalClips",
-                    "approvedClips",
-                    "approvalRate",
-                    "totalViews",
-                    "approvedViews",
-                    "totalEarnings"
-                  ],
-                  "type": "object"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "summary": "Get stats for a creator",
-        "tags": [
-          "Creator"
-        ]
-      }
-    },
-    "/tracking-campaigns": {
-      "get": {
-        "description": "Returns a paginated list of tracking campaigns. Supports filtering by status and sorting by name, status, creation date, or visibility.",
-        "operationId": "trackingCampaign.list",
-        "parameters": [
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "pageIndex",
-            "schema": {
-              "default": 0,
-              "maximum": 9007199254740991,
-              "minimum": 0,
-              "type": "integer"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "pageSize",
-            "schema": {
-              "default": 25,
-              "maximum": 100,
-              "minimum": 1,
-              "type": "integer"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "explode": true,
-            "in": "query",
-            "name": "status",
-            "schema": {
-              "items": {
-                "enum": [
-                  "draft",
-                  "active",
-                  "paused",
-                  "completed"
-                ],
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "style": "form"
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "sortBy",
-            "schema": {
-              "enum": [
-                "name",
-                "status",
-                "createdAt",
-                "visibility"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "allowReserved": true,
-            "in": "query",
-            "name": "sortDesc",
-            "schema": {
-              "default": true,
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "data": {
-                      "items": {
-                        "properties": {
-                          "contentBrief": {
-                            "type": "string"
-                          },
-                          "contentSrc": {
-                            "anyOf": [
-                              {
-                                "items": {
-                                  "type": "string"
-                                },
-                                "type": "array"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "createdAt": {
-                            "format": "date-time",
-                            "type": "string"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "platforms": {
-                            "anyOf": [
-                              {
-                                "items": {
-                                  "enum": [
-                                    "youtube",
-                                    "instagram",
-                                    "tiktok"
-                                  ],
-                                  "type": "string"
-                                },
-                                "type": "array"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "status": {
-                            "enum": [
-                              "draft",
-                              "active",
-                              "paused",
-                              "completed"
-                            ],
-                            "type": "string"
-                          },
-                          "thumbnail": {
-                            "type": "string"
-                          },
-                          "uuid": {
-                            "type": "string"
-                          },
-                          "visibility": {
-                            "enum": [
-                              "public",
-                              "open",
-                              "private"
-                            ],
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "uuid",
-                          "name",
-                          "status",
-                          "platforms",
-                          "thumbnail",
-                          "visibility",
-                          "contentBrief",
-                          "contentSrc",
-                          "createdAt"
-                        ],
-                        "type": "object"
-                      },
-                      "type": "array"
-                    },
-                    "pageIndex": {
-                      "type": "number"
-                    },
-                    "pageSize": {
-                      "type": "number"
-                    },
-                    "total": {
-                      "type": "number"
-                    }
-                  },
-                  "required": [
-                    "data",
-                    "total",
-                    "pageIndex",
-                    "pageSize"
-                  ],
-                  "type": "object"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "summary": "List tracking campaigns",
-        "tags": [
-          "Tracking Campaign"
-        ]
-      }
-    },
-    "/tracking-campaigns/{uuid}": {
-      "get": {
-        "description": "Returns a single tracking campaign by UUID.",
-        "operationId": "trackingCampaign.get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "uuid",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "contentBrief": {
-                      "type": "string"
-                    },
-                    "contentSrc": {
-                      "anyOf": [
-                        {
-                          "items": {
-                            "type": "string"
-                          },
-                          "type": "array"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "createdAt": {
-                      "format": "date-time",
-                      "type": "string"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "platforms": {
-                      "anyOf": [
-                        {
-                          "items": {
-                            "enum": [
-                              "youtube",
-                              "instagram",
-                              "tiktok"
-                            ],
-                            "type": "string"
-                          },
-                          "type": "array"
-                        },
-                        {
-                          "type": "null"
-                        }
-                      ]
-                    },
-                    "status": {
-                      "enum": [
-                        "draft",
-                        "active",
-                        "paused",
-                        "completed"
-                      ],
-                      "type": "string"
-                    },
-                    "thumbnail": {
-                      "type": "string"
-                    },
-                    "uuid": {
-                      "type": "string"
-                    },
-                    "visibility": {
-                      "enum": [
-                        "public",
-                        "open",
-                        "private"
-                      ],
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "uuid",
-                    "name",
-                    "status",
-                    "platforms",
-                    "thumbnail",
-                    "visibility",
-                    "contentBrief",
-                    "contentSrc",
-                    "createdAt"
-                  ],
-                  "type": "object"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "summary": "Get a tracking campaign",
-        "tags": [
-          "Tracking Campaign"
-        ]
-      }
-    },
-    "/tracking-campaigns/{uuid}/content": {
-      "post": {
-        "description": "Imports one or more content URLs into a tracking campaign. Fails if a URL is a duplicate submission or from an unsupported platform.",
-        "operationId": "trackingCampaign.importUrls",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "uuid",
-            "required": true,
-            "schema": {
-              "format": "uuid",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "properties": {
-                  "status": {
-                    "enum": [
-                      "pending",
-                      "approved",
-                      "rejected"
-                    ],
-                    "type": "string"
-                  },
-                  "urls": {
-                    "items": {
-                      "format": "uri",
-                      "type": "string"
-                    },
-                    "maxItems": 100,
-                    "minItems": 1,
-                    "type": "array"
-                  }
-                },
-                "required": [
-                  "urls",
-                  "status"
-                ],
-                "type": "object"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "properties": {
-                    "imported": {
-                      "items": {
-                        "properties": {
-                          "url": {
-                            "type": "string"
-                          },
-                          "uuid": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "uuid",
-                          "url"
-                        ],
-                        "type": "object"
-                      },
-                      "type": "array"
-                    }
-                  },
-                  "required": [
-                    "imported"
-                  ],
-                  "type": "object"
-                }
-              }
-            },
-            "description": "OK"
-          }
-        },
-        "summary": "Import content URLs",
-        "tags": [
-          "Tracking Campaign"
-        ]
-      }
-    }
-  },
-  "security": [
-    {
-      "BearerAuth": []
-    }
-  ],
-  "servers": [
-    {
-      "url": "https://app.clouted.com/api/v1"
-    }
-  ]
+	"components": {
+		"securitySchemes": {
+			"BearerAuth": {
+				"scheme": "bearer",
+				"type": "http"
+			}
+		}
+	},
+	"info": {
+		"title": "Clouted Public API",
+		"version": "1.0.0"
+	},
+	"openapi": "3.1.1",
+	"paths": {
+		"/campaigns": {
+			"get": {
+				"description": "Returns a paginated list of campaigns. Supports partial matching for name, and filtering by status.",
+				"operationId": "campaign.list",
+				"parameters": [
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "pageIndex",
+						"schema": {
+							"default": 0,
+							"maximum": 9007199254740991,
+							"minimum": 0,
+							"type": "integer"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "pageSize",
+						"schema": {
+							"default": 25,
+							"exclusiveMinimum": 0,
+							"maximum": 100,
+							"minimum": -9007199254740991,
+							"type": "integer"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "search",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"explode": true,
+						"in": "query",
+						"name": "status",
+						"schema": {
+							"items": {
+								"enum": [
+									"draft",
+									"active",
+									"paused",
+									"in_finance_review",
+									"completed"
+								],
+								"type": "string"
+							},
+							"type": "array"
+						},
+						"style": "form"
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "sortBy",
+						"schema": {
+							"enum": ["name", "status", "createdAt"],
+							"type": "string"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "sortDesc",
+						"schema": {
+							"default": true,
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"properties": {
+													"createdAt": {
+														"format": "date-time",
+														"type": "string"
+													},
+													"endAt": {
+														"anyOf": [
+															{
+																"format": "date-time",
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"genre": {
+														"anyOf": [
+															{
+																"enum": [
+																	"film",
+																	"music",
+																	"gaming",
+																	"podcast",
+																	"sports",
+																	"livestream",
+																	"influencer",
+																	"logo",
+																	"reposting"
+																],
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"name": {
+														"type": "string"
+													},
+													"platforms": {
+														"anyOf": [
+															{
+																"items": {
+																	"enum": ["youtube", "instagram", "tiktok"],
+																	"type": "string"
+																},
+																"type": "array"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"publicName": {
+														"anyOf": [
+															{
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"startAt": {
+														"anyOf": [
+															{
+																"format": "date-time",
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"status": {
+														"enum": [
+															"draft",
+															"active",
+															"paused",
+															"in_finance_review",
+															"completed"
+														],
+														"type": "string"
+													},
+													"thumbnail": {
+														"anyOf": [
+															{
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"uuid": {
+														"type": "string"
+													},
+													"visibility": {
+														"enum": ["public", "open", "private"],
+														"type": "string"
+													}
+												},
+												"required": [
+													"uuid",
+													"name",
+													"publicName",
+													"status",
+													"platforms",
+													"thumbnail",
+													"genre",
+													"visibility",
+													"startAt",
+													"endAt",
+													"createdAt"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"pageIndex": {
+											"type": "number"
+										},
+										"pageSize": {
+											"type": "number"
+										},
+										"total": {
+											"type": "number"
+										}
+									},
+									"required": ["data", "total", "pageIndex", "pageSize"],
+									"type": "object"
+								}
+							}
+						},
+						"description": "OK"
+					}
+				},
+				"summary": "List campaigns",
+				"tags": ["Campaign"]
+			}
+		},
+		"/campaigns/{uuid}": {
+			"get": {
+				"description": "Returns a single campaign by UUID.",
+				"operationId": "campaign.get",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"createdAt": {
+											"format": "date-time",
+											"type": "string"
+										},
+										"endAt": {
+											"anyOf": [
+												{
+													"format": "date-time",
+													"type": "string"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"genre": {
+											"anyOf": [
+												{
+													"enum": [
+														"film",
+														"music",
+														"gaming",
+														"podcast",
+														"sports",
+														"livestream",
+														"influencer",
+														"logo",
+														"reposting"
+													],
+													"type": "string"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"name": {
+											"type": "string"
+										},
+										"platforms": {
+											"anyOf": [
+												{
+													"items": {
+														"enum": ["youtube", "instagram", "tiktok"],
+														"type": "string"
+													},
+													"type": "array"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"publicName": {
+											"anyOf": [
+												{
+													"type": "string"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"startAt": {
+											"anyOf": [
+												{
+													"format": "date-time",
+													"type": "string"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"status": {
+											"enum": [
+												"draft",
+												"active",
+												"paused",
+												"in_finance_review",
+												"completed"
+											],
+											"type": "string"
+										},
+										"thumbnail": {
+											"anyOf": [
+												{
+													"type": "string"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"uuid": {
+											"type": "string"
+										},
+										"visibility": {
+											"enum": ["public", "open", "private"],
+											"type": "string"
+										}
+									},
+									"required": [
+										"uuid",
+										"name",
+										"publicName",
+										"status",
+										"platforms",
+										"thumbnail",
+										"genre",
+										"visibility",
+										"startAt",
+										"endAt",
+										"createdAt"
+									],
+									"type": "object"
+								}
+							}
+						},
+						"description": "OK"
+					}
+				},
+				"summary": "Get a campaign",
+				"tags": ["Campaign"]
+			}
+		},
+		"/campaigns/{uuid}/clips": {
+			"get": {
+				"description": "Returns a paginated list of clip submissions for a campaign. Supports filtering by status and platform, with sorting by views, likes, comments, post date, or submit date. Optionally search by a specific field (clip_url, social_handle, creator_username, creator_discord_id) using partial matching.",
+				"operationId": "campaign.getClips",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "pageIndex",
+						"required": false,
+						"schema": {
+							"default": 0,
+							"maximum": 9007199254740991,
+							"minimum": 0,
+							"type": "integer"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"schema": {
+							"default": 25,
+							"maximum": 100,
+							"minimum": 1,
+							"type": "integer"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"explode": true,
+						"in": "query",
+						"name": "status",
+						"required": false,
+						"schema": {
+							"items": {
+								"enum": ["pending", "healthy", "suspicious", "flagged"],
+								"type": "string"
+							},
+							"type": "array"
+						},
+						"style": "form"
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "platform",
+						"required": false,
+						"schema": {
+							"enum": ["youtube", "tiktok", "instagram"],
+							"type": "string"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "sortBy",
+						"required": false,
+						"schema": {
+							"enum": ["views", "likes", "comments", "postDate", "submitDate"],
+							"type": "string"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "sortDesc",
+						"required": false,
+						"schema": {
+							"default": true,
+							"type": "string"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "searchField",
+						"required": false,
+						"schema": {
+							"enum": [
+								"clip_url",
+								"social_handle",
+								"creator_username",
+								"creator_discord_id"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "value",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"properties": {
+													"clipper": {
+														"properties": {
+															"username": {
+																"type": "string"
+															},
+															"uuid": {
+																"type": "string"
+															}
+														},
+														"required": ["uuid", "username"],
+														"type": "object"
+													},
+													"createdAt": {
+														"format": "date-time",
+														"type": "string"
+													},
+													"datePosted": {
+														"anyOf": [
+															{
+																"format": "date-time",
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"platform": {
+														"enum": ["youtube", "tiktok", "instagram"],
+														"type": "string"
+													},
+													"stats": {
+														"properties": {
+															"comments": {
+																"type": "number"
+															},
+															"likes": {
+																"type": "number"
+															},
+															"uniqueViewers": {
+																"type": "number"
+															},
+															"views": {
+																"type": "number"
+															}
+														},
+														"required": [
+															"views",
+															"likes",
+															"comments",
+															"uniqueViewers"
+														],
+														"type": "object"
+													},
+													"status": {
+														"enum": [
+															"pending",
+															"healthy",
+															"suspicious",
+															"flagged"
+														],
+														"type": "string"
+													},
+													"thumbnailUrl": {
+														"anyOf": [
+															{
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"title": {
+														"anyOf": [
+															{
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"url": {
+														"type": "string"
+													},
+													"userHandle": {
+														"anyOf": [
+															{
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"uuid": {
+														"type": "string"
+													},
+													"videoDurationMs": {
+														"anyOf": [
+															{
+																"type": "number"
+															},
+															{
+																"type": "null"
+															}
+														]
+													}
+												},
+												"required": [
+													"uuid",
+													"url",
+													"title",
+													"platform",
+													"status",
+													"datePosted",
+													"thumbnailUrl",
+													"videoDurationMs",
+													"userHandle",
+													"createdAt",
+													"stats",
+													"clipper"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"pageIndex": {
+											"type": "number"
+										},
+										"pageSize": {
+											"type": "number"
+										},
+										"total": {
+											"type": "number"
+										}
+									},
+									"required": ["data", "total", "pageIndex", "pageSize"],
+									"type": "object"
+								}
+							}
+						},
+						"description": "OK"
+					}
+				},
+				"summary": "List clip submissions",
+				"tags": ["Campaign"]
+			},
+			"post": {
+				"description": "Imports one or more clip URLs into a campaign. Fails if a URL is a duplicate submission or from an unsupported platform.",
+				"operationId": "campaign.importUrls",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"status": {
+										"enum": ["pending", "healthy", "suspicious", "flagged"],
+										"type": "string"
+									},
+									"urls": {
+										"items": {
+											"format": "uri",
+											"type": "string"
+										},
+										"maxItems": 100,
+										"minItems": 1,
+										"type": "array"
+									}
+								},
+								"required": ["urls", "status"],
+								"type": "object"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"imported": {
+											"items": {
+												"properties": {
+													"url": {
+														"type": "string"
+													},
+													"uuid": {
+														"type": "string"
+													}
+												},
+												"required": ["uuid", "url"],
+												"type": "object"
+											},
+											"type": "array"
+										}
+									},
+									"required": ["imported"],
+									"type": "object"
+								}
+							}
+						},
+						"description": "OK"
+					}
+				},
+				"summary": "Import clip URLs",
+				"tags": ["Campaign"]
+			}
+		},
+		"/creators": {
+			"get": {
+				"description": "Returns a paginated list of creators. Supports sorting by username, name, email, join date, or role. Optionally search by a specific field (username, name, email, discord_id) using partial matching.",
+				"operationId": "creator.list",
+				"parameters": [
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "pageIndex",
+						"schema": {
+							"default": 0,
+							"maximum": 9007199254740991,
+							"minimum": 0,
+							"type": "integer"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "pageSize",
+						"schema": {
+							"default": 25,
+							"maximum": 100,
+							"minimum": 1,
+							"type": "integer"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "sortBy",
+						"schema": {
+							"enum": ["username", "name", "email", "joinedAt", "role"],
+							"type": "string"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "sortDesc",
+						"schema": {
+							"default": true,
+							"type": "string"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "searchField",
+						"schema": {
+							"enum": ["username", "name", "email", "discord_id"],
+							"type": "string"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "value",
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"properties": {
+													"banExpires": {
+														"anyOf": [
+															{
+																"format": "date-time",
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"banReason": {
+														"anyOf": [
+															{
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"banned": {
+														"anyOf": [
+															{
+																"type": "boolean"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"discordAvatar": {
+														"anyOf": [
+															{
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"discordId": {
+														"anyOf": [
+															{
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"email": {
+														"type": "string"
+													},
+													"emailVerified": {
+														"type": "boolean"
+													},
+													"joinedAt": {
+														"format": "date-time",
+														"type": "string"
+													},
+													"name": {
+														"type": "string"
+													},
+													"role": {
+														"anyOf": [
+															{
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"userImage": {
+														"anyOf": [
+															{
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"username": {
+														"type": "string"
+													},
+													"uuid": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"uuid",
+													"discordId",
+													"username",
+													"discordAvatar",
+													"name",
+													"userImage",
+													"email",
+													"emailVerified",
+													"role",
+													"banned",
+													"banReason",
+													"banExpires",
+													"joinedAt"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"pageIndex": {
+											"type": "number"
+										},
+										"pageSize": {
+											"type": "number"
+										},
+										"total": {
+											"type": "number"
+										}
+									},
+									"required": ["data", "total", "pageIndex", "pageSize"],
+									"type": "object"
+								}
+							}
+						},
+						"description": "OK"
+					}
+				},
+				"summary": "List creators",
+				"tags": ["Creator"]
+			}
+		},
+		"/creators/-/stats": {
+			"get": {
+				"description": "Returns a paginated list of creator performance statistics. Supports sorting by username, total clips, approved clips, approval rate, total views, approved views, or total earnings.",
+				"operationId": "creator.listCreatorStats",
+				"parameters": [
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "pageIndex",
+						"schema": {
+							"default": 0,
+							"maximum": 9007199254740991,
+							"minimum": 0,
+							"type": "integer"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "pageSize",
+						"schema": {
+							"default": 25,
+							"maximum": 100,
+							"minimum": 1,
+							"type": "integer"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "sortBy",
+						"schema": {
+							"enum": [
+								"username",
+								"totalClips",
+								"approvedClips",
+								"approvalRate",
+								"totalViews",
+								"approvedViews",
+								"totalEarnings"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "sortDesc",
+						"schema": {
+							"default": true,
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"properties": {
+													"approvalRate": {
+														"anyOf": [
+															{
+																"type": "number"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"approvedClips": {
+														"type": "number"
+													},
+													"approvedViews": {
+														"type": "number"
+													},
+													"discordAvatar": {
+														"anyOf": [
+															{
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"discordId": {
+														"anyOf": [
+															{
+																"type": "string"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"totalClips": {
+														"type": "number"
+													},
+													"totalEarnings": {
+														"type": "number"
+													},
+													"totalViews": {
+														"type": "number"
+													},
+													"username": {
+														"type": "string"
+													},
+													"uuid": {
+														"type": "string"
+													}
+												},
+												"required": [
+													"uuid",
+													"username",
+													"discordAvatar",
+													"discordId",
+													"totalClips",
+													"approvedClips",
+													"approvalRate",
+													"totalViews",
+													"approvedViews",
+													"totalEarnings"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"pageIndex": {
+											"type": "number"
+										},
+										"pageSize": {
+											"type": "number"
+										},
+										"total": {
+											"type": "number"
+										}
+									},
+									"required": ["data", "total", "pageIndex", "pageSize"],
+									"type": "object"
+								}
+							}
+						},
+						"description": "OK"
+					}
+				},
+				"summary": "List creator stats",
+				"tags": ["Creator"]
+			}
+		},
+		"/creators/{uuid}": {
+			"get": {
+				"description": "Returns a single creator by UUID.",
+				"operationId": "creator.get",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"banExpires": {
+											"anyOf": [
+												{
+													"format": "date-time",
+													"type": "string"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"banReason": {
+											"anyOf": [
+												{
+													"type": "string"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"banned": {
+											"anyOf": [
+												{
+													"type": "boolean"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"discordAvatar": {
+											"anyOf": [
+												{
+													"type": "string"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"discordId": {
+											"anyOf": [
+												{
+													"type": "string"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"email": {
+											"type": "string"
+										},
+										"emailVerified": {
+											"type": "boolean"
+										},
+										"joinedAt": {
+											"format": "date-time",
+											"type": "string"
+										},
+										"name": {
+											"type": "string"
+										},
+										"role": {
+											"anyOf": [
+												{
+													"type": "string"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"userImage": {
+											"anyOf": [
+												{
+													"type": "string"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"username": {
+											"type": "string"
+										},
+										"uuid": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"uuid",
+										"discordId",
+										"username",
+										"discordAvatar",
+										"name",
+										"userImage",
+										"email",
+										"emailVerified",
+										"role",
+										"banned",
+										"banReason",
+										"banExpires",
+										"joinedAt"
+									],
+									"type": "object"
+								}
+							}
+						},
+						"description": "OK"
+					}
+				},
+				"summary": "Get a creator",
+				"tags": ["Creator"]
+			}
+		},
+		"/creators/{uuid}/stats": {
+			"get": {
+				"description": "Returns performance statistics for a single creator by UUID",
+				"operationId": "creator.getCreatorStats",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"approvalRate": {
+											"anyOf": [
+												{
+													"type": "number"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"approvedClips": {
+											"type": "number"
+										},
+										"approvedViews": {
+											"type": "number"
+										},
+										"discordAvatar": {
+											"anyOf": [
+												{
+													"type": "string"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"discordId": {
+											"anyOf": [
+												{
+													"type": "string"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"totalClips": {
+											"type": "number"
+										},
+										"totalEarnings": {
+											"type": "number"
+										},
+										"totalViews": {
+											"type": "number"
+										},
+										"username": {
+											"type": "string"
+										},
+										"uuid": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"uuid",
+										"username",
+										"discordAvatar",
+										"discordId",
+										"totalClips",
+										"approvedClips",
+										"approvalRate",
+										"totalViews",
+										"approvedViews",
+										"totalEarnings"
+									],
+									"type": "object"
+								}
+							}
+						},
+						"description": "OK"
+					}
+				},
+				"summary": "Get stats for a creator",
+				"tags": ["Creator"]
+			}
+		},
+		"/tracking-campaigns": {
+			"get": {
+				"description": "Returns a paginated list of tracking campaigns. Supports filtering by status and sorting by name, status, creation date, or visibility.",
+				"operationId": "trackingCampaign.list",
+				"parameters": [
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "pageIndex",
+						"schema": {
+							"default": 0,
+							"maximum": 9007199254740991,
+							"minimum": 0,
+							"type": "integer"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "pageSize",
+						"schema": {
+							"default": 25,
+							"maximum": 100,
+							"minimum": 1,
+							"type": "integer"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"explode": true,
+						"in": "query",
+						"name": "status",
+						"schema": {
+							"items": {
+								"enum": ["draft", "active", "paused", "completed"],
+								"type": "string"
+							},
+							"type": "array"
+						},
+						"style": "form"
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "sortBy",
+						"schema": {
+							"enum": ["name", "status", "createdAt", "visibility"],
+							"type": "string"
+						}
+					},
+					{
+						"allowEmptyValue": true,
+						"allowReserved": true,
+						"in": "query",
+						"name": "sortDesc",
+						"schema": {
+							"default": true,
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"data": {
+											"items": {
+												"properties": {
+													"contentBrief": {
+														"type": "string"
+													},
+													"contentSrc": {
+														"anyOf": [
+															{
+																"items": {
+																	"type": "string"
+																},
+																"type": "array"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"createdAt": {
+														"format": "date-time",
+														"type": "string"
+													},
+													"name": {
+														"type": "string"
+													},
+													"platforms": {
+														"anyOf": [
+															{
+																"items": {
+																	"enum": ["youtube", "instagram", "tiktok"],
+																	"type": "string"
+																},
+																"type": "array"
+															},
+															{
+																"type": "null"
+															}
+														]
+													},
+													"status": {
+														"enum": ["draft", "active", "paused", "completed"],
+														"type": "string"
+													},
+													"thumbnail": {
+														"type": "string"
+													},
+													"uuid": {
+														"type": "string"
+													},
+													"visibility": {
+														"enum": ["public", "open", "private"],
+														"type": "string"
+													}
+												},
+												"required": [
+													"uuid",
+													"name",
+													"status",
+													"platforms",
+													"thumbnail",
+													"visibility",
+													"contentBrief",
+													"contentSrc",
+													"createdAt"
+												],
+												"type": "object"
+											},
+											"type": "array"
+										},
+										"pageIndex": {
+											"type": "number"
+										},
+										"pageSize": {
+											"type": "number"
+										},
+										"total": {
+											"type": "number"
+										}
+									},
+									"required": ["data", "total", "pageIndex", "pageSize"],
+									"type": "object"
+								}
+							}
+						},
+						"description": "OK"
+					}
+				},
+				"summary": "List tracking campaigns",
+				"tags": ["Tracking Campaign"]
+			}
+		},
+		"/tracking-campaigns/{uuid}": {
+			"get": {
+				"description": "Returns a single tracking campaign by UUID.",
+				"operationId": "trackingCampaign.get",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"contentBrief": {
+											"type": "string"
+										},
+										"contentSrc": {
+											"anyOf": [
+												{
+													"items": {
+														"type": "string"
+													},
+													"type": "array"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"createdAt": {
+											"format": "date-time",
+											"type": "string"
+										},
+										"name": {
+											"type": "string"
+										},
+										"platforms": {
+											"anyOf": [
+												{
+													"items": {
+														"enum": ["youtube", "instagram", "tiktok"],
+														"type": "string"
+													},
+													"type": "array"
+												},
+												{
+													"type": "null"
+												}
+											]
+										},
+										"status": {
+											"enum": ["draft", "active", "paused", "completed"],
+											"type": "string"
+										},
+										"thumbnail": {
+											"type": "string"
+										},
+										"uuid": {
+											"type": "string"
+										},
+										"visibility": {
+											"enum": ["public", "open", "private"],
+											"type": "string"
+										}
+									},
+									"required": [
+										"uuid",
+										"name",
+										"status",
+										"platforms",
+										"thumbnail",
+										"visibility",
+										"contentBrief",
+										"contentSrc",
+										"createdAt"
+									],
+									"type": "object"
+								}
+							}
+						},
+						"description": "OK"
+					}
+				},
+				"summary": "Get a tracking campaign",
+				"tags": ["Tracking Campaign"]
+			}
+		},
+		"/tracking-campaigns/{uuid}/content": {
+			"post": {
+				"description": "Imports one or more content URLs into a tracking campaign. Fails if a URL is a duplicate submission or from an unsupported platform.",
+				"operationId": "trackingCampaign.importUrls",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "uuid",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"status": {
+										"enum": ["pending", "approved", "rejected"],
+										"type": "string"
+									},
+									"urls": {
+										"items": {
+											"format": "uri",
+											"type": "string"
+										},
+										"maxItems": 100,
+										"minItems": 1,
+										"type": "array"
+									}
+								},
+								"required": ["urls", "status"],
+								"type": "object"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"imported": {
+											"items": {
+												"properties": {
+													"url": {
+														"type": "string"
+													},
+													"uuid": {
+														"type": "string"
+													}
+												},
+												"required": ["uuid", "url"],
+												"type": "object"
+											},
+											"type": "array"
+										}
+									},
+									"required": ["imported"],
+									"type": "object"
+								}
+							}
+						},
+						"description": "OK"
+					}
+				},
+				"summary": "Import content URLs",
+				"tags": ["Tracking Campaign"]
+			}
+		}
+	},
+	"security": [
+		{
+			"BearerAuth": []
+		}
+	],
+	"servers": [
+		{
+			"url": "https://app.clouted.com/api/v1"
+		}
+	]
 }
