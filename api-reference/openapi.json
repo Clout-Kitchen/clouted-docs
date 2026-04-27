@@ -1206,7 +1206,7 @@
     },
     "/creators/{uuid}": {
       "get": {
-        "description": "Returns a creator info by UUID.",
+        "description": "Returns a single creator by UUID.",
         "operationId": "creator.get",
         "parameters": [
           {
@@ -1338,7 +1338,7 @@
             "description": "OK"
           }
         },
-        "summary": "Get creator info",
+        "summary": "Get a creator",
         "tags": [
           "Creator"
         ]
@@ -1843,9 +1843,6 @@
   "servers": [
     {
       "url": "https://app.clouted.com/api/v1"
-    },
-    {
-      "url": "https://staging.app.clouted.com/api/v1"
     }
   ]
 }
