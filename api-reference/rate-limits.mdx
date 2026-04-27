@@ -1,0 +1,91 @@
+---
+title: "Rate limits"
+description: "Request limits, headers, retries, and throttling behavior for the Clouted API."
+---
+
+The Clouted API enforces a per-key rate limit on every authenticated endpoint. When you exceed the limit, the API returns HTTP `429 Too Many Requests` with a `Retry-After` header indicating how long to wait.
+
+## Limits
+
+| Key type | Limit | Bucket |
+| --- | --- | --- |
+| **Org** | 1,200 requests / minute | per organization |
+| **Personal** | 120 requests / minute | per user |
+
+### Bucket semantics
+
+- An **org key** counts toward your *organization's* shared bucket. All org keys minted by anyone in the same org draw from the same 1,200/min ceiling.
+- A **personal key** counts toward the *user's* bucket - separate from any org keys that user can also mint.
+- Buckets survive key rotation: rotating a key doesn't reset the bucket, and minting more keys doesn't multiply your ceiling.
+
+## Response headers
+
+Every authenticated response - success or `429` - includes three headers you can use to monitor your usage:
+
+| Header | Description |
+| --- | --- |
+| `X-RateLimit-Limit` | Maximum requests allowed in the current window |
+| `X-RateLimit-Remaining` | Requests remaining before throttling (`0` when exhausted) |
+| `X-RateLimit-Reset` | Unix timestamp (seconds) when the window resets |
+
+Watching `X-RateLimit-Remaining` lets you throttle preemptively rather than waiting for 429 errors.
+
+## When you exceed the limit
+
+The API responds with:
+
+- Status: `429 Too Many Requests`
+- Body: `{ "code": "TOO_MANY_REQUESTS", "message": "Rate limit exceeded" }`
+- Header: `Retry-After: <seconds>` - wait this many seconds before retrying
+
+### Example 429 response
+
+```http
+HTTP/1.1 429 Too Many Requests
+Content-Type: application/json
+X-RateLimit-Limit: 1200
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1730054400
+Retry-After: 47
+
+{ "code": "TOO_MANY_REQUESTS", "message": "Rate limit exceeded" }
+```
+
+## Best practices
+
+**Watch the headers, don't wait for `429`s.** Check `X-RateLimit-Remaining` on every response and slow down before you hit zero.
+
+**Honor `Retry-After`.** When you do receive a `429`, wait at least the indicated number of seconds before retrying. Continued requests during the throttle window may extend it.
+
+**Use exponential backoff.** If `Retry-After` isn't enough, back off retries (e.g., `2s, 4s, 8s, 16s`, capped at 60s) and consult `Retry-After` on each subsequent `429`.
+
+**Spread requests evenly.** Bursting 1,200 requests in 5 seconds and pacing 20 req/sec sustained both fit within the per-minute limit, but smooth pacing is more resilient to transient spikes and gives you headroom for retries.
+
+## Algorithm
+
+Per-key counts use a **sliding window** over 60 seconds. There's no "edge effect" at minute boundaries - the limiter always reports the count of requests in the *last* 60 seconds, regardless of when within the window you call.
+
+## What counts as a request
+
+- **Every HTTP request that reaches the limiter counts** - including those that return `4xx` or `5xx`. Validate inputs client-side where practical.
+- **Each request is one unit.** A request returning a 100-row page counts the same as one returning 1 row.
+- **Pagination is per-request.** Ten 10-row pages = ten requests.
+
+## Edge-level abuse protection
+
+In addition to the per-key limit, the Clouted API enforces an IP-based cap of **3,000 requests / minute per IP** across the entire API surface. This is a floor designed to absorb scraping, brute-force, and other abuse traffic before it reaches our application servers.
+
+This is rarely a concern for legitimate customers. If you're sharing infrastructure with other Clouted users (e.g. behind corporate NAT or a shared mobile carrier), the headroom is comfortably above any single customer's per-key limit.
+
+When the IP cap is exceeded, the response is `403 Forbidden` (rather than `429`) - that's how you can tell the two layers apart programmatically.
+
+## FAQ
+
+**Why am I seeing `429`s when my call volume is below the limit?**
+Check `X-RateLimit-Limit` in the response - it confirms the ceiling that's being enforced. Also confirm you're using the key type you think you are; org and personal keys have different limits.
+
+**Why am I seeing `403` instead of `429`?**
+That's the edge IP cap, not the per-key limit. Either you're sharing an IP with other heavy traffic, or you've exceeded 3,000 requests/min from a single IP. Spread your requests across more sources or reach out to support.
+
+**Can I get a higher limit?**
+Custom org tiers are available - contact support.
