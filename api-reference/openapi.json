@@ -1483,6 +1483,7 @@
                   "draft",
                   "active",
                   "paused",
+                  "frozen",
                   "completed"
                 ],
                 "type": "string"
@@ -1572,6 +1573,7 @@
                               "draft",
                               "active",
                               "paused",
+                              "frozen",
                               "completed"
                             ],
                             "type": "string"
@@ -1702,6 +1704,7 @@
                         "draft",
                         "active",
                         "paused",
+                        "frozen",
                         "completed"
                       ],
                       "type": "string"
