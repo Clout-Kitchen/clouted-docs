@@ -1,0 +1,56 @@
+---
+title: 'Agent workflows'
+description: 'Task-oriented recipes for driving the Clouted API from an agent — chain these calls to reach an outcome.'
+---
+
+These guides are written for **autonomous agents and integrations**. Each recipe is a chain of
+calls: what to send, which field to read from the response, and how that field feeds the next
+call. For the full per-endpoint schema, see the [Endpoints](/api-reference/introduction) reference.
+
+## Before you start
+
+<Info>
+Read the [rate limits](/api-reference/rate-limits) page before running loops or bulk imports.
+</Info>
+
+- **Base URL:** `https://app.clouted.com/api/v1`
+- **Auth:** every request needs `Authorization: Bearer <YOUR_TOKEN>`.
+- **IDs:** resources are addressed by `uuid`. The workflow is almost always *list to discover a
+  `uuid` → act on that `uuid`*.
+- **Pagination:** list endpoints accept `pageIndex` and `pageSize` and return results under `data`.
+  Page through until `data` comes back empty.
+- **Synchronous:** unlike job-based generative APIs, most calls return their result directly —
+  there is no submit-then-poll step. `POST` imports take effect immediately. (The Drive/Dropbox
+  import in [Create a campaign with a content vault](/api-reference/guides/campaign-with-vault) is
+  the one background-job exception.)
+
+## Recipes
+
+<CardGroup cols={2}>
+  <Card title="Import clips into a campaign" icon="file-import" href="/api-reference/guides/import-campaign">
+    Attach a batch of clip URLs to a clipping campaign and confirm they were ingested.
+  </Card>
+  <Card title="Import content into a tracking campaign" icon="satellite-dish" href="/api-reference/guides/import-tracking-campaign">
+    Attach a batch of content URLs to a tracking campaign and confirm they were ingested.
+  </Card>
+  <Card title="Measure a creator's performance" icon="chart-line" href="/api-reference/guides/creator-performance">
+    Resolve a creator and pull their aggregate stats.
+  </Card>
+  <Card title="Create a campaign with a content vault" icon="folder-plus" href="/api-reference/guides/campaign-with-vault">
+    Create a campaign, build a vault folder, link it, and add assets.
+  </Card>
+</CardGroup>
+
+## Gotchas for agents
+
+- **`status` enums differ by endpoint.** Clip import uses `pending | healthy | suspicious | flagged`;
+  tracking-content import uses `pending | approved | rejected`. Don't reuse one for the other.
+- **Batch cap:** `urls` accepts 1–100 items per import. Chunk larger sets and repeat the `POST`.
+- **Always chain on `uuid`,** not on `name` — names are not guaranteed unique and may be null
+  (`publicName`).
+- **Page to completion.** A single list call is a page, not the full set; loop `pageIndex` until
+  `data` is empty.
+- **Money is in cents.** `budget` and `cpm` are positive integers in the smallest currency unit
+  (`100` = $1.00).
+</content>
+</invoke>

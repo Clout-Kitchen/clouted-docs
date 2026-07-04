@@ -1,0 +1,58 @@
+---
+title: 'Import content into a tracking campaign'
+description: 'Attach a batch of content URLs to a tracking campaign and confirm they were ingested.'
+---
+
+**Outcome:** attach a batch of content URLs to the right tracking campaign and confirm they were
+ingested.
+
+<Note>
+This is for **tracking campaigns** (`POST /tracking-campaigns/{uuid}/content`). For clipping
+campaigns, use [Import clips into a campaign](/api-reference/guides/import-campaign) — a different
+endpoint with a different `status` enum.
+</Note>
+
+<Steps>
+<Step title="Find the tracking campaign uuid">
+```http
+GET /tracking-campaigns?pageSize=20
+Authorization: Bearer <YOUR_TOKEN>
+```
+
+Read `data[].uuid` for the tracking campaign whose `name` matches.
+</Step>
+
+<Step title="Import the content URLs">
+`POST` the URLs to that tracking campaign. Both `urls` (1–100 URIs) and `status` are required.
+
+```http
+POST /tracking-campaigns/{uuid}/content
+Authorization: Bearer <YOUR_TOKEN>
+Content-Type: application/json
+
+{
+  "urls": ["https://instagram.com/reel/abc"],
+  "status": "pending"
+}
+```
+
+`status` must be one of `pending`, `approved`, `rejected`.
+</Step>
+
+<Step title="Confirm ingestion">
+List the tracking campaign's clips to verify they landed.
+
+```http
+GET /tracking-campaigns/{uuid}/clips?status=pending&pageSize=50
+Authorization: Bearer <YOUR_TOKEN>
+```
+
+You can also filter by `platform`, `creatorUuid`, or `clipUrl`.
+</Step>
+</Steps>
+
+<Info>
+Imports are capped at 100 URLs per call. Chunk larger sets and repeat the `POST`. A duplicate
+submission or an unsupported-platform URL fails the request.
+</Info>
+</content>
