@@ -1,0 +1,34 @@
+---
+title: "Measure a creator's performance"
+description: 'Resolve a creator and pull their aggregate stats.'
+---
+
+**Outcome:** resolve a creator and pull their aggregate stats.
+
+<Steps>
+<Step title="Resolve the creator uuid">
+```http
+GET /creators?search=<handle>&pageSize=20
+Authorization: Bearer <YOUR_TOKEN>
+```
+
+Read `data[].uuid`.
+</Step>
+
+<Step title="Fetch their stats">
+```http
+GET /creators/{uuid}/stats
+Authorization: Bearer <YOUR_TOKEN>
+```
+
+Returns `totalClips`, `approvedClips`, `approvalRate`, `totalViews`, `approvedViews`, and
+`totalEarnings`.
+</Step>
+</Steps>
+
+<Tip>
+To rank many creators at once, use `GET /creators/-/stats` instead of one call per creator. It
+returns the same stats per creator and accepts `sortBy` (`totalClips`, `approvedClips`,
+`approvalRate`, `totalViews`, `approvedViews`, `totalEarnings`) with `pageIndex` / `pageSize`.
+</Tip>
+</content>
