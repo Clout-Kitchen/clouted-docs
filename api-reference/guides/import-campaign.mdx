@@ -1,0 +1,62 @@
+---
+title: 'Import clips into a campaign'
+description: 'Attach a batch of clip URLs to a clipping campaign and confirm they were ingested.'
+---
+
+**Outcome:** attach a batch of clip URLs to the right clipping campaign and confirm they were
+ingested.
+
+<Note>
+This is for **clipping campaigns** (`POST /campaigns/{uuid}/clips`). For tracking campaigns, use
+[Import content into a tracking campaign](/api-reference/guides/import-tracking-campaign) — a
+different endpoint with a different `status` enum.
+</Note>
+
+<Steps>
+<Step title="Find the campaign uuid">
+List campaigns and filter to the one you want. Use `search` and `status` to narrow it down.
+
+```http
+GET /campaigns?search=summer&status=active&pageSize=20
+Authorization: Bearer <YOUR_TOKEN>
+```
+
+Read `data[].uuid` for the campaign whose `name` matches.
+</Step>
+
+<Step title="Import the clip URLs">
+`POST` the URLs to that campaign. Both `urls` (1–100 URIs) and `status` are required.
+
+```http
+POST /campaigns/{uuid}/clips
+Authorization: Bearer <YOUR_TOKEN>
+Content-Type: application/json
+
+{
+  "urls": ["https://youtube.com/watch?v=abc", "https://tiktok.com/@x/video/123"],
+  "status": "pending"
+}
+```
+
+`status` must be one of `pending`, `healthy`, `suspicious`, `flagged`. Use `pending` for
+new submissions you want reviewed.
+</Step>
+
+<Step title="Confirm ingestion">
+List the campaign's clips to verify they landed and to read their metrics.
+
+```http
+GET /campaigns/{uuid}/clips?status=pending&platform=youtube&pageSize=50
+Authorization: Bearer <YOUR_TOKEN>
+```
+
+Each item in `data` carries `url`, `platform`, `status`, the `clipper` (`{ uuid, username }`),
+and `stats` (`views`, `likes`, `comments`, `uniqueViewers`).
+</Step>
+</Steps>
+
+<Info>
+Imports are capped at 100 URLs per call. Chunk larger sets and repeat the `POST`. A duplicate
+submission or an unsupported-platform URL fails the request.
+</Info>
+</content>

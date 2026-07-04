@@ -1,0 +1,233 @@
+---
+title: 'Create a campaign with a content vault'
+description: 'Create a clipping campaign, build a vault folder, link it, and add assets.'
+---
+
+**Outcome:** create a clipping campaign, organize its assets in a content vault folder, link that
+folder to the campaign, and add assets to the folder.
+
+The campaign and the content vault are **independent by default**: creating a campaign does not
+create a vault folder. To associate vault assets with a campaign, create a folder, link it to the
+campaign, then add assets to that folder. Linking is optional — assets can also live at the vault
+root, unattached to any campaign.
+
+## Before you start
+
+- **Permissions:** the API key must have `Campaign: edit` (for campaigns and for linking a folder
+  to a campaign) and `ContentPool: edit` (for vault folders and assets).
+- **Money is in cents.** `budget` and `cpm` are positive integers in the smallest currency unit
+  (`100` = $1.00).
+- **Dates are ISO-8601 strings** (e.g. `2026-08-01T00:00:00.000Z`).
+
+## Step 1 — Create a campaign
+
+Creates a clipping campaign. It is created as a **draft** by default. Set `status` to `active` to
+launch it immediately.
+
+```http
+POST /campaigns
+Authorization: Bearer <YOUR_TOKEN>
+Content-Type: application/json
+
+{
+  "name": "Summer Launch",
+  "budget": 500000,
+  "cpm": 200,
+  "platforms": ["tiktok", "instagram"],
+  "genre": "music",
+  "status": "active"
+}
+```
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `name` | string | ✅ | Campaign name. |
+| `budget` | int (cents) | ✅ | Total clipper budget, positive. |
+| `cpm` | int (cents) | ✅ | Payout per 1,000 views, positive. |
+| `platforms` | string[] | ✅ | One or more of `youtube`, `instagram`, `tiktok`. Non-empty. |
+| `status` | string | — | `draft` (default) or `active`. |
+| `genre` | string \| null | — | `film`, `music`, `gaming`, `podcast`, `sports`, `livestream`, `influencer`, `logo`, `reposting`, or `null`. |
+| `visibility` | string | — | `public` (default), `open`, or `private`. |
+| `startAt` | ISO datetime \| null | — | Scheduled start. **Ignored when `status: "active"`** — launching sets the start to now. |
+| `endAt` | ISO datetime \| null | — | Scheduled end. |
+| `minPayout` / `maxPayout` | int \| null | — | Per-clip payout bounds; if both set, `minPayout ≤ maxPayout`. |
+
+<Info>
+This is a subset of the accepted fields. See [Create a campaign](/api-reference/introduction) in the
+Endpoints reference for the complete request schema.
+</Info>
+
+The response returns the campaign object. **Keep the `uuid`** — it identifies the campaign in every
+other call below.
+
+## Step 2 — Create a content vault folder
+
+Folders organize vault assets and are **org-scoped**; creating one does not attach it to any
+campaign (do that in Step 3). This step is optional — skip it to add assets at the vault root.
+
+```http
+POST /content-pool/folders
+Authorization: Bearer <YOUR_TOKEN>
+Content-Type: application/json
+
+{ "name": "Summer Launch assets" }
+```
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `name` | string | ✅ | Folder name, 1–255 chars. |
+| `parentFolderId` | int \| null | — | Nest under an existing folder; omit or `null` for the vault root. |
+| `replaceExisting` | bool | — | Default `false`. If a same-named folder exists under the same parent, `false` returns `409`; `true` **deletes that folder and everything inside it**, then creates a fresh one. |
+
+The response returns `id`. **Keep the `id`** — pass it as `folderId` when linking (Step 3) and when
+adding assets (Step 4).
+
+## Step 3 — Link the folder to the campaign
+
+Attaches the folder from Step 2 to the campaign, so the folder's assets are associated with that
+campaign. Optional — skip if the folder doesn't need to belong to a campaign.
+
+```http
+POST /campaigns/{uuid}/folders
+Authorization: Bearer <YOUR_TOKEN>
+Content-Type: application/json
+
+{ "folderId": 42, "publicityType": "requirements" }
+```
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `folderId` | int | ✅ | Vault folder id (from Step 2). |
+| `publicityType` | string \| null | — | How the content is surfaced: `requirements`, `samples`, or `ready_to_post`. Omit or `null` for none. |
+
+- The campaign must be in a **linkable** state: `draft`, `active`, or `paused`.
+- Re-linking the same folder just updates its `publicityType`.
+- A `404` means the campaign wasn't found, isn't yours, or isn't linkable — or the folder id
+  doesn't exist in your org.
+
+## Step 4 — Add an asset to the folder
+
+The vault accepts **image, video, and audio** files only (max 500 MB). Pass the `folderId` from
+Step 2 to place the asset in the linked folder (omit for the vault root). There are two mechanisms —
+pick the one that matches where the file lives.
+
+<Tabs>
+<Tab title="Direct upload (you hold the bytes)">
+
+A presigned flow: two API calls (reserve, then finalize) with a direct upload to storage in between.
+
+<Steps>
+<Step title="Reserve the asset and get an upload URL">
+```http
+POST /content-pool/assets
+Authorization: Bearer <YOUR_TOKEN>
+Content-Type: application/json
+
+{ "fileName": "clip.mp4", "contentType": "video/mp4", "folderId": 42 }
+```
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `fileName` | string | ✅ | e.g. `clip.mp4`. |
+| `contentType` | string | ✅ | e.g. `video/mp4`. Must be image/video/audio. |
+| `folderId` | int \| null | — | Target folder. |
+| `tagIds` | int[] | — | Tags to apply. |
+| `replaceExisting` | bool | — | Default `false`; a duplicate file name in the same folder returns `409`. |
+
+The response returns `id`, `signedUploadUrl`, and (videos only) `signedThumbnailUploadUrl`.
+</Step>
+
+<Step title="Upload the bytes to the signed URL">
+`PUT` the file directly to `signedUploadUrl`. This goes to **storage, not the API**. Two headers
+are **required**, or storage rejects the `PUT` with `403`:
+
+- `Content-Type` must match what you declared in step 1.
+- `x-goog-content-length-range: 0,524288000` — the signed URL enforces the 500 MB cap. Send this
+  exact value.
+
+```http
+PUT <signedUploadUrl>
+Content-Type: video/mp4
+x-goog-content-length-range: 0,524288000
+
+<raw file bytes>
+```
+
+(Optional, videos only) `PUT` a JPEG thumbnail to `signedThumbnailUploadUrl` with
+`Content-Type: image/jpeg` and the same `x-goog-content-length-range` header.
+</Step>
+
+<Step title="Finalize">
+```http
+POST /content-pool/assets/{id}/finalize
+Authorization: Bearer <YOUR_TOKEN>
+Content-Type: application/json
+
+{ "success": true }
+```
+
+Send `success: true` if the upload succeeded, `false` to mark it failed. The asset becomes `ready`
+(or `failed`).
+
+<Warning>
+If you never finalize, the asset stays in `processing` and is not usable. Always finalize after
+uploading.
+</Warning>
+</Step>
+</Steps>
+
+</Tab>
+<Tab title="Import from Google Drive / Dropbox">
+
+When the assets live behind a shared link, import them server-side as a background job.
+
+<Steps>
+<Step title="(Optional) Preview what will be imported">
+```http
+POST /content-pool/imports/preview
+Authorization: Bearer <YOUR_TOKEN>
+Content-Type: application/json
+
+{ "source": "google_drive", "link": "https://drive.google.com/…" }
+```
+
+`source` is `google_drive` or `dropbox`. Unsupported files are excluded and counted in
+`skippedCount`.
+</Step>
+
+<Step title="Start the import">
+```http
+POST /content-pool/imports
+Authorization: Bearer <YOUR_TOKEN>
+Content-Type: application/json
+
+{ "source": "dropbox", "link": "https://www.dropbox.com/…", "targetFolderId": 42 }
+```
+
+Omit `targetFolderId` (or send `null`) to import to the vault root. The response returns a `jobId`
+to poll.
+</Step>
+
+<Step title="Poll import status">
+```http
+GET /content-pool/imports/{jobId}
+Authorization: Bearer <YOUR_TOKEN>
+```
+
+`status` goes `pending` → `processing` → `completed` (or `failed`, with an `errorMessage`). Poll
+until it's `completed` or `failed`. Jobs expire after ~15 minutes.
+</Step>
+</Steps>
+
+</Tab>
+</Tabs>
+
+## Decision guide
+
+0. **Want assets grouped and/or attached to a campaign?** → Step 2 (`POST /content-pool/folders`,
+   keep the `id`), then optionally Step 3 to link it. Otherwise skip and upload to the root.
+1. **You hold the raw file bytes?** → Direct upload: `POST /content-pool/assets` → `PUT` bytes to
+   the signed URL → `POST /content-pool/assets/{id}/finalize`.
+2. **Assets live in a Google Drive / Dropbox share?** → Import: (optionally preview) →
+   `POST /content-pool/imports` → poll `GET /content-pool/imports/{jobId}`.
+</content>
