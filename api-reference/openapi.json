@@ -93,8 +93,15 @@
             "in": "query",
             "name": "sortDesc",
             "schema": {
-              "default": true,
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": true
             }
           }
         ],
@@ -985,8 +992,15 @@
             "name": "sortDesc",
             "required": false,
             "schema": {
-              "default": true,
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": true
             }
           },
           {
@@ -1944,8 +1958,15 @@
             "in": "query",
             "name": "sortDesc",
             "schema": {
-              "default": true,
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": true
             }
           },
           {
@@ -2174,8 +2195,15 @@
             "in": "query",
             "name": "sortDesc",
             "schema": {
-              "default": true,
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": true
             }
           }
         ],
@@ -2594,8 +2622,15 @@
             "in": "query",
             "name": "sortDesc",
             "schema": {
-              "default": true,
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": true
             }
           }
         ],
@@ -2928,8 +2963,15 @@
             "name": "sortDesc",
             "required": false,
             "schema": {
-              "default": true,
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": true
             }
           },
           {
@@ -3289,8 +3331,15 @@
             "name": "sortDesc",
             "required": false,
             "schema": {
-              "default": true,
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": true
             }
           },
           {
