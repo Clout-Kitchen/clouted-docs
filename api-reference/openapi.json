@@ -9063,6 +9063,1496 @@
         ]
       }
     },
+    "/reward-campaigns": {
+      "get": {
+        "description": "Returns a paginated list of reward campaigns. Supports partial matching for name, and filtering by status.",
+        "operationId": "rewardCampaign.list",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "allowReserved": true,
+            "in": "query",
+            "name": "pageIndex",
+            "schema": {
+              "default": 0,
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "allowEmptyValue": true,
+            "allowReserved": true,
+            "in": "query",
+            "name": "pageSize",
+            "schema": {
+              "default": 25,
+              "exclusiveMinimum": 0,
+              "maximum": 100,
+              "minimum": -9007199254740991,
+              "type": "integer"
+            }
+          },
+          {
+            "allowEmptyValue": true,
+            "allowReserved": true,
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "allowEmptyValue": true,
+            "allowReserved": true,
+            "explode": true,
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "items": {
+                "enum": [
+                  "draft",
+                  "active",
+                  "paused",
+                  "frozen",
+                  "completed"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "style": "form"
+          },
+          {
+            "allowEmptyValue": true,
+            "allowReserved": true,
+            "in": "query",
+            "name": "sortBy",
+            "schema": {
+              "enum": [
+                "name",
+                "status",
+                "createdAt",
+                "visibility"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "allowEmptyValue": true,
+            "allowReserved": true,
+            "in": "query",
+            "name": "sortDesc",
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "items": {
+                        "properties": {
+                          "contentBrief": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "platforms": {
+                            "items": {
+                              "enum": [
+                                "youtube",
+                                "instagram",
+                                "tiktok"
+                              ],
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "status": {
+                            "enum": [
+                              "draft",
+                              "active",
+                              "paused",
+                              "frozen",
+                              "completed"
+                            ],
+                            "type": "string"
+                          },
+                          "thumbnail": {
+                            "type": "string"
+                          },
+                          "uuid": {
+                            "type": "string"
+                          },
+                          "visibility": {
+                            "enum": [
+                              "public",
+                              "open",
+                              "private"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "uuid",
+                          "name",
+                          "status",
+                          "platforms",
+                          "thumbnail",
+                          "visibility",
+                          "contentBrief",
+                          "createdAt"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "pageIndex": {
+                      "type": "number"
+                    },
+                    "pageSize": {
+                      "type": "number"
+                    },
+                    "total": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "total",
+                    "pageIndex",
+                    "pageSize"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "code": {
+                          "const": "VALIDATION_ERROR"
+                        },
+                        "data": {
+                          "additionalProperties": {},
+                          "properties": {
+                            "recovery": {
+                              "description": "Context-specific recovery hint for this failure.",
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "defined": {
+                          "const": true
+                        },
+                        "message": {
+                          "default": "VALIDATION_ERROR",
+                          "type": "string"
+                        },
+                        "status": {
+                          "const": 400
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "data": {},
+                        "defined": {
+                          "const": false
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "400"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "code": {
+                          "const": "UNAUTHORIZED"
+                        },
+                        "data": {
+                          "additionalProperties": {},
+                          "properties": {
+                            "recovery": {
+                              "description": "Context-specific recovery hint for this failure.",
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "defined": {
+                          "const": true
+                        },
+                        "message": {
+                          "default": "Unauthorized",
+                          "type": "string"
+                        },
+                        "status": {
+                          "const": 401
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "data": {},
+                        "defined": {
+                          "const": false
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "401"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "code": {
+                          "const": "INSUFFICIENT_PERMISSIONS"
+                        },
+                        "data": {
+                          "additionalProperties": {},
+                          "properties": {
+                            "recovery": {
+                              "description": "Context-specific recovery hint for this failure.",
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "defined": {
+                          "const": true
+                        },
+                        "message": {
+                          "default": "INSUFFICIENT_PERMISSIONS",
+                          "type": "string"
+                        },
+                        "status": {
+                          "const": 403
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "data": {},
+                        "defined": {
+                          "const": false
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "403"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "code": {
+                          "const": "RATE_LIMITED"
+                        },
+                        "data": {
+                          "additionalProperties": {},
+                          "properties": {
+                            "recovery": {
+                              "description": "Context-specific recovery hint for this failure.",
+                              "type": "string"
+                            },
+                            "retryAfterSeconds": {
+                              "description": "Seconds to wait before retrying — matches the Retry-After header.",
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "retryAfterSeconds"
+                          ],
+                          "type": "object"
+                        },
+                        "defined": {
+                          "const": true
+                        },
+                        "message": {
+                          "default": "RATE_LIMITED",
+                          "type": "string"
+                        },
+                        "status": {
+                          "const": 429
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "data": {},
+                        "defined": {
+                          "const": false
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "429"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "code": {
+                          "const": "INTERNAL_ERROR"
+                        },
+                        "data": {
+                          "additionalProperties": {},
+                          "properties": {
+                            "recovery": {
+                              "description": "Context-specific recovery hint for this failure.",
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "defined": {
+                          "const": true
+                        },
+                        "message": {
+                          "default": "INTERNAL_ERROR",
+                          "type": "string"
+                        },
+                        "status": {
+                          "const": 500
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "data": {},
+                        "defined": {
+                          "const": false
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "500"
+          }
+        },
+        "summary": "List reward campaigns",
+        "tags": [
+          "Reward Campaign"
+        ]
+      }
+    },
+    "/reward-campaigns/{uuid}": {
+      "get": {
+        "description": "Returns a single reward campaign by UUID, including its reward structures with per-structure committed budget.",
+        "operationId": "rewardCampaign.get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "audioValidationEnabled": {
+                      "type": "boolean"
+                    },
+                    "captionValidationEnabled": {
+                      "type": "boolean"
+                    },
+                    "contentBrief": {
+                      "type": "string"
+                    },
+                    "contentSrc": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "createdAt": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "endAt": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "genre": {
+                      "anyOf": [
+                        {
+                          "enum": [
+                            "film",
+                            "music",
+                            "gaming",
+                            "podcast",
+                            "sports",
+                            "livestream",
+                            "influencer",
+                            "logo",
+                            "reposting"
+                          ],
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "hasEnded": {
+                      "type": "boolean"
+                    },
+                    "hasStarted": {
+                      "type": "boolean"
+                    },
+                    "markedAsCompletedAt": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "metadata": {
+                      "anyOf": [
+                        {
+                          "properties": {
+                            "instagramAudioUrls": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "tiktokAudioUrls": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "ownerValidationEnabled": {
+                      "type": "boolean"
+                    },
+                    "platforms": {
+                      "items": {
+                        "enum": [
+                          "youtube",
+                          "instagram",
+                          "tiktok"
+                        ],
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "remarks": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "rewardStructures": {
+                      "items": {
+                        "properties": {
+                          "activatedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "amountCents": {
+                            "maximum": 9007199254740991,
+                            "minimum": -9007199254740991,
+                            "type": "integer"
+                          },
+                          "budgetCents": {
+                            "maximum": 9007199254740991,
+                            "minimum": -9007199254740991,
+                            "type": "integer"
+                          },
+                          "committedBudgetCents": {
+                            "description": "Disbursed plus pending or projected budget obligations.",
+                            "maximum": 9007199254740991,
+                            "minimum": -9007199254740991,
+                            "type": "integer"
+                          },
+                          "cpmMaxPayoutCents": {
+                            "anyOf": [
+                              {
+                                "maximum": 9007199254740991,
+                                "minimum": -9007199254740991,
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "cpmMinViewThreshold": {
+                            "anyOf": [
+                              {
+                                "maximum": 9007199254740991,
+                                "minimum": -9007199254740991,
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string"
+                          },
+                          "deactivatedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "granularity": {
+                            "enum": [
+                              "per_submission",
+                              "per_creator"
+                            ],
+                            "type": "string"
+                          },
+                          "platforms": {
+                            "anyOf": [
+                              {
+                                "items": {
+                                  "enum": [
+                                    "youtube",
+                                    "tiktok",
+                                    "instagram"
+                                  ],
+                                  "type": "string"
+                                },
+                                "type": "array"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "ppmThresholdMetric": {
+                            "anyOf": [
+                              {
+                                "enum": [
+                                  "views",
+                                  "submission_count"
+                                ],
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "ppmThresholdValue": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ],
+                            "description": "Bigint internally; serialized as a numeric string."
+                          },
+                          "settledAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "status": {
+                            "enum": [
+                              "draft",
+                              "active",
+                              "deactivated",
+                              "settled"
+                            ],
+                            "type": "string"
+                          },
+                          "type": {
+                            "enum": [
+                              "cpm",
+                              "pps",
+                              "ppm"
+                            ],
+                            "type": "string"
+                          },
+                          "uuid": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "uuid",
+                          "type",
+                          "status",
+                          "granularity",
+                          "budgetCents",
+                          "amountCents",
+                          "cpmMinViewThreshold",
+                          "cpmMaxPayoutCents",
+                          "ppmThresholdMetric",
+                          "ppmThresholdValue",
+                          "platforms",
+                          "committedBudgetCents",
+                          "activatedAt",
+                          "deactivatedAt",
+                          "settledAt",
+                          "createdAt"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    "spendAtCompletion": {
+                      "anyOf": [
+                        {
+                          "maximum": 9007199254740991,
+                          "minimum": -9007199254740991,
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "startAt": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "status": {
+                      "enum": [
+                        "draft",
+                        "active",
+                        "paused",
+                        "frozen",
+                        "completed"
+                      ],
+                      "type": "string"
+                    },
+                    "thumbnail": {
+                      "type": "string"
+                    },
+                    "totalClipsApprovedAtCompletion": {
+                      "anyOf": [
+                        {
+                          "maximum": 9007199254740991,
+                          "minimum": -9007199254740991,
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "totalClipsAtCompletion": {
+                      "anyOf": [
+                        {
+                          "maximum": 9007199254740991,
+                          "minimum": -9007199254740991,
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "updatedAt": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "uuid": {
+                      "type": "string"
+                    },
+                    "validationInstructions": {
+                      "anyOf": [
+                        {
+                          "properties": {
+                            "audioReferenceType": {
+                              "enum": [
+                                "upload",
+                                "video_url"
+                              ],
+                              "type": "string"
+                            },
+                            "audioReferences": {
+                              "anyOf": [
+                                {
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "type": "array"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "audioSocialUrls": {
+                              "anyOf": [
+                                {
+                                  "items": {
+                                    "type": "string"
+                                  },
+                                  "type": "array"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "captionInstructions": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "videoInstructions": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "videoInstructions",
+                            "captionInstructions",
+                            "audioReferences",
+                            "audioSocialUrls",
+                            "audioReferenceType"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "videoValidationEnabled": {
+                      "type": "boolean"
+                    },
+                    "viewsAtCompletion": {
+                      "anyOf": [
+                        {
+                          "maximum": 9007199254740991,
+                          "minimum": -9007199254740991,
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "visibility": {
+                      "enum": [
+                        "public",
+                        "open",
+                        "private"
+                      ],
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "uuid",
+                    "name",
+                    "status",
+                    "platforms",
+                    "thumbnail",
+                    "visibility",
+                    "contentBrief",
+                    "createdAt",
+                    "contentSrc",
+                    "remarks",
+                    "metadata",
+                    "genre",
+                    "validationInstructions",
+                    "audioValidationEnabled",
+                    "captionValidationEnabled",
+                    "videoValidationEnabled",
+                    "ownerValidationEnabled",
+                    "startAt",
+                    "endAt",
+                    "hasStarted",
+                    "hasEnded",
+                    "viewsAtCompletion",
+                    "spendAtCompletion",
+                    "totalClipsAtCompletion",
+                    "totalClipsApprovedAtCompletion",
+                    "markedAsCompletedAt",
+                    "updatedAt",
+                    "rewardStructures"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "code": {
+                          "const": "VALIDATION_ERROR"
+                        },
+                        "data": {
+                          "additionalProperties": {},
+                          "properties": {
+                            "recovery": {
+                              "description": "Context-specific recovery hint for this failure.",
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "defined": {
+                          "const": true
+                        },
+                        "message": {
+                          "default": "VALIDATION_ERROR",
+                          "type": "string"
+                        },
+                        "status": {
+                          "const": 400
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "data": {},
+                        "defined": {
+                          "const": false
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "400"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "code": {
+                          "const": "UNAUTHORIZED"
+                        },
+                        "data": {
+                          "additionalProperties": {},
+                          "properties": {
+                            "recovery": {
+                              "description": "Context-specific recovery hint for this failure.",
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "defined": {
+                          "const": true
+                        },
+                        "message": {
+                          "default": "Unauthorized",
+                          "type": "string"
+                        },
+                        "status": {
+                          "const": 401
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "data": {},
+                        "defined": {
+                          "const": false
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "401"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "code": {
+                          "const": "INSUFFICIENT_PERMISSIONS"
+                        },
+                        "data": {
+                          "additionalProperties": {},
+                          "properties": {
+                            "recovery": {
+                              "description": "Context-specific recovery hint for this failure.",
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "defined": {
+                          "const": true
+                        },
+                        "message": {
+                          "default": "INSUFFICIENT_PERMISSIONS",
+                          "type": "string"
+                        },
+                        "status": {
+                          "const": 403
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "data": {},
+                        "defined": {
+                          "const": false
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "403"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "code": {
+                          "const": "REWARD_CAMPAIGN_NOT_FOUND"
+                        },
+                        "data": {
+                          "additionalProperties": {},
+                          "properties": {
+                            "recovery": {
+                              "description": "Context-specific recovery hint for this failure.",
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "defined": {
+                          "const": true
+                        },
+                        "message": {
+                          "default": "REWARD_CAMPAIGN_NOT_FOUND",
+                          "type": "string"
+                        },
+                        "status": {
+                          "const": 404
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "data": {},
+                        "defined": {
+                          "const": false
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "404"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "code": {
+                          "const": "RATE_LIMITED"
+                        },
+                        "data": {
+                          "additionalProperties": {},
+                          "properties": {
+                            "recovery": {
+                              "description": "Context-specific recovery hint for this failure.",
+                              "type": "string"
+                            },
+                            "retryAfterSeconds": {
+                              "description": "Seconds to wait before retrying — matches the Retry-After header.",
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "retryAfterSeconds"
+                          ],
+                          "type": "object"
+                        },
+                        "defined": {
+                          "const": true
+                        },
+                        "message": {
+                          "default": "RATE_LIMITED",
+                          "type": "string"
+                        },
+                        "status": {
+                          "const": 429
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "data": {},
+                        "defined": {
+                          "const": false
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "429"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "code": {
+                          "const": "INTERNAL_ERROR"
+                        },
+                        "data": {
+                          "additionalProperties": {},
+                          "properties": {
+                            "recovery": {
+                              "description": "Context-specific recovery hint for this failure.",
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "defined": {
+                          "const": true
+                        },
+                        "message": {
+                          "default": "INTERNAL_ERROR",
+                          "type": "string"
+                        },
+                        "status": {
+                          "const": 500
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "data": {},
+                        "defined": {
+                          "const": false
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "500"
+          }
+        },
+        "summary": "Get a reward campaign",
+        "tags": [
+          "Reward Campaign"
+        ]
+      }
+    },
     "/tracking-campaigns": {
       "get": {
         "description": "Returns a paginated list of tracking campaigns. Supports filtering by status and sorting by name, status, creation date, or visibility.",
