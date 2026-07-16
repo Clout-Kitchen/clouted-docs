@@ -18,14 +18,8 @@
 						"pages": ["api-reference/introduction", "api-reference/rate-limits"]
 					},
 					{
-						"group": "Agent workflows",
-						"pages": [
-							"api-reference/guides/overview",
-							"api-reference/guides/import-campaign",
-							"api-reference/guides/import-tracking-campaign",
-							"api-reference/guides/creator-performance",
-							"api-reference/guides/campaign-with-vault"
-						]
+						"group": "MCP",
+						"pages": ["api-reference/mcp/connect"]
 					},
 					{
 						"group": "Endpoints",
