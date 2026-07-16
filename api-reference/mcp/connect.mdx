@@ -1,0 +1,94 @@
+---
+title: 'Connect to the MCP server'
+description: 'Wire the Clouted MCP server into Claude Code or any agent platform with a URL and an API key.'
+---
+
+Clouted exposes its API as a **remote MCP server**. Once connected, your agent discovers the
+available tools, their descriptions, and their input schemas live from the server — there is
+nothing to install and no tool list to keep in sync. This page covers the one thing the server
+can't tell you: how to connect in the first place.
+
+| | |
+| --- | --- |
+| **Endpoint** | `https://app.clouted.com/api/v1/mcp` |
+| **Transport** | Streamable HTTP (the legacy SSE transport is disabled) |
+| **Auth** | `Authorization: Bearer <api key>` on every request |
+| **Server name** | `clouted-rally` |
+| **Max request duration** | 60 seconds |
+
+## Prerequisites
+
+1. A Clouted account.
+2. An API key, created at [app.clouted.com/dashboard/api-keys](https://app.clouted.com/dashboard/api-keys).
+
+When creating the key, two choices matter:
+
+- **Org vs. personal.** Org-scoped keys look like `sk_org_…`, personal keys like `sk_personal_…`.
+  Some tools require an org-scoped key — a personal key gets a structured
+  `INSUFFICIENT_PERMISSIONS` error whose recovery hint says to switch. If in doubt, use an org key.
+- **Scopes.** Keys carry granular scopes chosen at creation (e.g. `campaign:view`,
+  `campaign:edit`). Every tool call is authorized against the key's scopes, so grant only what
+  your agent actually needs.
+
+## Connect from any MCP client
+
+Most agent platforms (Town, Zo, HyperAgent, and similar) let you add a custom or remote MCP
+server with exactly three fields:
+
+| Field | Value |
+| --- | --- |
+| Transport / type | Remote server, **streamable HTTP** |
+| URL | `https://app.clouted.com/api/v1/mcp` |
+| Header | `Authorization: Bearer sk_org_...` |
+
+No local process, no `npx` command, nothing to install.
+
+## Connect from Claude Code
+
+```bash
+claude mcp add --transport http clouted https://app.clouted.com/api/v1/mcp \
+  --header "Authorization: Bearer sk_org_..."
+```
+
+## Verify the connection
+
+After connecting, your client's tool list should populate with the Clouted tools. For a quick
+smoke test, call a list tool — for example `campaign_list` with `{}` — and confirm you get a
+result back instead of an auth error.
+
+## Rate limits
+
+The MCP server enforces the same limits as the REST API, drawn from the **same buckets** — MCP
+tool calls and REST requests count against each other:
+
+| Key type | Limit | Bucket |
+| --- | --- | --- |
+| **Org** | 1,200 requests / minute | per organization |
+| **Personal** | 120 requests / minute | per user |
+
+See [rate limits](/api-reference/rate-limits) for bucket semantics and retry guidance.
+
+## Errors
+
+Failed tool calls return a structured JSON envelope in the tool result:
+
+```json
+{ "code": "VALIDATION_ERROR", "message": "...", "data": { "recovery": "..." } }
+```
+
+The `code` values are stable and machine-readable, shared with the REST API (e.g.
+`CAMPAIGN_NOT_FOUND`, `VALIDATION_ERROR`, `RATE_LIMITED`), and `data.recovery` often describes
+how to fix the call.
+
+<Info>
+Branch on `code`, not `message` — messages are human-readable and may change; codes won't.
+</Info>
+
+## Troubleshooting
+
+| Symptom | Cause and fix |
+| --- | --- |
+| `401 Unauthorized` | The key is missing, revoked, or malformed. Check the `Authorization` header and mint a fresh key if needed. |
+| `INSUFFICIENT_PERMISSIONS` | The key lacks a required scope, or the tool requires an org-scoped key and you sent a personal one. The error's `data.recovery` says which. |
+| `429` / `RATE_LIMITED` | You hit the rate limit. Honor `retryAfterSeconds` before retrying. |
+| Connection fails with SSE errors | Your client is using the legacy SSE transport, which is disabled. Switch it to **streamable HTTP**. |
