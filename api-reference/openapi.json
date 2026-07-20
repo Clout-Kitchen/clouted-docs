@@ -5337,6 +5337,75 @@
             },
             "description": "404"
           },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "code": {
+                          "const": "NAME_CONFLICT"
+                        },
+                        "data": {
+                          "additionalProperties": {},
+                          "properties": {
+                            "recovery": {
+                              "description": "Context-specific recovery hint for this failure.",
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "defined": {
+                          "const": true
+                        },
+                        "message": {
+                          "default": "NAME_CONFLICT",
+                          "type": "string"
+                        },
+                        "status": {
+                          "const": 409
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "data": {},
+                        "defined": {
+                          "const": false
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "409"
+          },
           "429": {
             "content": {
               "application/json": {
@@ -6552,7 +6621,7 @@
     },
     "/content-pool/assets/{id}/finalize": {
       "post": {
-        "description": "Confirms that the file bytes were uploaded to storage and marks the asset ready (or failed). Triggers AI analysis on success.",
+        "description": "Confirms that the file bytes were uploaded to storage and marks the asset ready (or failed). AI analysis is opt-in: pass analyze: true to queue it; otherwise the asset is not analyzed.",
         "operationId": "contentPool.finalizeUpload",
         "parameters": [
           {
@@ -6572,6 +6641,10 @@
             "application/json": {
               "schema": {
                 "properties": {
+                  "analyze": {
+                    "default": false,
+                    "type": "boolean"
+                  },
                   "success": {
                     "type": "boolean"
                   }
@@ -6873,6 +6946,144 @@
               }
             },
             "description": "403"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "code": {
+                          "const": "ASSET_NOT_FOUND"
+                        },
+                        "data": {
+                          "additionalProperties": {},
+                          "properties": {
+                            "recovery": {
+                              "description": "Context-specific recovery hint for this failure.",
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "defined": {
+                          "const": true
+                        },
+                        "message": {
+                          "default": "ASSET_NOT_FOUND",
+                          "type": "string"
+                        },
+                        "status": {
+                          "const": 404
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "data": {},
+                        "defined": {
+                          "const": false
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "404"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "code": {
+                          "const": "ASSET_ALREADY_FINALIZED"
+                        },
+                        "data": {
+                          "additionalProperties": {},
+                          "properties": {
+                            "recovery": {
+                              "description": "Context-specific recovery hint for this failure.",
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "defined": {
+                          "const": true
+                        },
+                        "message": {
+                          "default": "ASSET_ALREADY_FINALIZED",
+                          "type": "string"
+                        },
+                        "status": {
+                          "const": 409
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "data": {},
+                        "defined": {
+                          "const": false
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "defined",
+                        "code",
+                        "status",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "409"
           },
           "429": {
             "content": {
