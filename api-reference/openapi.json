@@ -2739,7 +2739,8 @@
                           "code": {
                             "enum": [
                               "DUPLICATE_URL",
-                              "UNSUPPORTED_PLATFORM"
+                              "UNSUPPORTED_PLATFORM",
+                              "BANNED_ACCOUNT"
                             ],
                             "type": "string"
                           },
@@ -2783,7 +2784,8 @@
                           "code": {
                             "enum": [
                               "DUPLICATE_URL",
-                              "UNSUPPORTED_PLATFORM"
+                              "UNSUPPORTED_PLATFORM",
+                              "BANNED_ACCOUNT"
                             ],
                             "type": "string"
                           },
@@ -22801,7 +22803,8 @@
                           "code": {
                             "enum": [
                               "DUPLICATE_URL",
-                              "UNSUPPORTED_PLATFORM"
+                              "UNSUPPORTED_PLATFORM",
+                              "BANNED_ACCOUNT"
                             ],
                             "type": "string"
                           },
@@ -22845,7 +22848,8 @@
                           "code": {
                             "enum": [
                               "DUPLICATE_URL",
-                              "UNSUPPORTED_PLATFORM"
+                              "UNSUPPORTED_PLATFORM",
+                              "BANNED_ACCOUNT"
                             ],
                             "type": "string"
                           },
