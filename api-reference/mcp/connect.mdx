@@ -26,9 +26,9 @@ When creating the key, two choices matter:
 - **Org vs. personal.** Org-scoped keys look like `sk_org_…`, personal keys like `sk_personal_…`.
   Some tools require an org-scoped key — a personal key gets a structured
   `INSUFFICIENT_PERMISSIONS` error whose recovery hint says to switch. If in doubt, use an org key.
-- **Scopes.** Keys carry granular scopes chosen at creation (e.g. `campaign:view`,
-  `campaign:edit`). Every tool call is authorized against the key's scopes, so grant only what
-  your agent actually needs.
+- **Scopes.** Keys carry granular scopes chosen at creation (e.g. `rewardCampaign:view`,
+  `rewardCampaign:edit`). Every tool call is authorized against the key's scopes, so grant only
+  what your agent actually needs.
 
 ## Connect from any MCP client
 
@@ -53,8 +53,8 @@ claude mcp add --transport http clouted https://app.clouted.com/api/v1/mcp \
 ## Verify the connection
 
 After connecting, your client's tool list should populate with the Clouted tools. For a quick
-smoke test, call a list tool — for example `campaign_list` with `{}` — and confirm you get a
-result back instead of an auth error.
+smoke test, call a list tool — for example `reward_campaign_list` with `{}` — and confirm you get
+a result back instead of an auth error.
 
 ## Rate limits
 
@@ -77,8 +77,8 @@ Failed tool calls return a structured JSON envelope in the tool result:
 ```
 
 The `code` values are stable and machine-readable, shared with the REST API (e.g.
-`CAMPAIGN_NOT_FOUND`, `VALIDATION_ERROR`, `RATE_LIMITED`), and `data.recovery` often describes
-how to fix the call.
+`REWARD_CAMPAIGN_NOT_FOUND`, `VALIDATION_ERROR`, `RATE_LIMITED`), and `data.recovery` often
+describes how to fix the call.
 
 <Info>
 Branch on `code`, not `message` — messages are human-readable and may change; codes won't.
