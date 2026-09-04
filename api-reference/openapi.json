@@ -15679,7 +15679,7 @@
     },
     "/reward-campaigns/{uuid}/clips": {
       "get": {
-        "description": "Returns a deterministically paginated list of reward campaign submissions; sort ties use descending submission ID.",
+        "description": "Returns a deterministically paginated list of reward campaign submissions; sort ties use descending submission ID. Supports filtering by content status, platform, creator UUID, and clip URL, with sorting by views, likes, comments, post date, or submit date.",
         "operationId": "rewardCampaign.getClips",
         "parameters": [
           {
@@ -15921,6 +15921,19 @@
                               "likes": {
                                 "type": "number"
                               },
+                              "shares": {
+                                "anyOf": [
+                                  {
+                                    "maximum": 9007199254740991,
+                                    "minimum": 0,
+                                    "type": "integer"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "description": "Share count when measured and known. Currently collected for TikTok snapshots; Instagram and YouTube snapshots return null. Null also means uncollected or unknown, while known zero remains 0."
+                              },
                               "uniqueViewers": {
                                 "type": "number"
                               },
@@ -15932,6 +15945,7 @@
                               "views",
                               "likes",
                               "comments",
+                              "shares",
                               "uniqueViewers"
                             ],
                             "type": "object"
@@ -15946,7 +15960,7 @@
                                 "type": "null"
                               }
                             ],
-                            "description": "Collection time of the returned stats snapshot."
+                            "description": "Collection time of this clip's latest persisted stats snapshot; null when no snapshot has been collected."
                           },
                           "status": {
                             "enum": [
@@ -20184,7 +20198,7 @@
     },
     "/tracking-campaigns/{uuid}/clips": {
       "get": {
-        "description": "Returns a deterministically paginated list of tracking campaign submissions; sort ties use descending submission ID.",
+        "description": "Returns a deterministically paginated list of tracking campaign submissions; sort ties use descending submission ID. Supports filtering by content status, platform, creator UUID, and clip URL, with sorting by views, likes, comments, post date, or submit date. Platform and clip URL filters only match submissions with linked clips.",
         "operationId": "trackingCampaign.getClips",
         "parameters": [
           {
@@ -20429,6 +20443,19 @@
                               "likes": {
                                 "type": "number"
                               },
+                              "shares": {
+                                "anyOf": [
+                                  {
+                                    "maximum": 9007199254740991,
+                                    "minimum": 0,
+                                    "type": "integer"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "description": "Share count when measured and known. Currently collected for TikTok snapshots; Instagram and YouTube snapshots return null. Null also means uncollected or unknown, while known zero remains 0."
+                              },
                               "uniqueViewers": {
                                 "type": "number"
                               },
@@ -20440,6 +20467,7 @@
                               "views",
                               "likes",
                               "comments",
+                              "shares",
                               "uniqueViewers"
                             ],
                             "type": "object"
@@ -20454,7 +20482,7 @@
                                 "type": "null"
                               }
                             ],
-                            "description": "Collection time of the returned stats snapshot."
+                            "description": "Collection time of this clip's latest persisted stats snapshot; null when no snapshot has been collected."
                           },
                           "status": {
                             "enum": [
